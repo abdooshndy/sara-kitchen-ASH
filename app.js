@@ -1259,15 +1259,10 @@
         const isOffer = item.type === "OFFER";
         return {
           order_id: orderId,
-          item_type: isOffer ? "OFFER" : "PRODUCT",
           product_id: isOffer ? null : item.refId,
-          offer_id: isOffer ? item.refId : null,
           name: item.name,
           quantity: item.quantity,
-          unit_price: item.unitPrice,
-          total_price: item.unitPrice * item.quantity,
-          options_details: null,
-          notes: null
+          unit_price: item.unitPrice
         };
       });
 
