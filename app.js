@@ -579,7 +579,7 @@
       if (type === "category" && value && cat.name !== value) return;
 
       const productsForCategory = products.filter(
-        (p) => p.category_id === cat.id && textMatches(p, searchText)
+        (p) => p.category === cat.name && textMatches(p, searchText)
       );
 
       if (!productsForCategory.length) return;
