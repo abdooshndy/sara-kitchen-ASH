@@ -164,17 +164,18 @@
 
         if (!items || items.length === 0) {
           showToast("لا توجد أصناف في هذا الطلب", "error");
+          btn.disabled = false;
+          btn.textContent = originalText;
           return;
         }
 
-        // 2. جلب السلة الحالية
-        let cart = JSON.parse(localStorage.getItem('sara_cart')) || [];
+        // 2. جلب السلة الحالية (استخدام المفتاح الصحيح)
+        let cart = JSON.parse(localStorage.getItem('sara_cart_v2')) || [];
 
         // 3. إضافة الأصناف للسلة
-        // ملاحظة: قد تكون الأسعار تغيرت، لكن للتبسيط سنستخدم السعر المسجل وقت الطلب
-        // أو الأفضل: نجلب السعر الحالي من جدول المنتجات (سأفعل ذلك للأمان)
-
         for (const item of items) {
+          if (!item.product_id) continue; // تخطي العروض إن وجدت
+
           // التحقق من توفر المنتج وسعره الحالي
           const { data: product } = await client
             .from('products')
@@ -184,24 +185,23 @@
 
           if (product && product.is_available) {
             // البحث هل المنتج موجود بالفعل في السلة؟
-            const existingItemIndex = cart.findIndex(c => c.id === item.product_id);
+            const existingItemIndex = cart.findIndex(c => c.refId === item.product_id && c.type === 'PRODUCT');
             if (existingItemIndex > -1) {
               cart[existingItemIndex].quantity += item.quantity;
             } else {
               cart.push({
-                id: item.product_id,
+                type: 'PRODUCT',
+                refId: item.product_id,
                 name: product.name,
-                price: product.price, // السعر الحالي
-                quantity: item.quantity,
-                // Options logic is complex to restore, we might skip or assume default
-                // For now, we assume basic items. If options existed, we might miss them here without complex logic.
+                unitPrice: product.price, // السعر الحالي
+                quantity: item.quantity
               });
             }
           }
         }
 
-        // 4. حفظ السلة
-        localStorage.setItem('sara_cart', JSON.stringify(cart));
+        // 4. حفظ السلة (استخدام المفتاح الصحيح)
+        localStorage.setItem('sara_cart_v2', JSON.stringify(cart));
 
         // تحديث العداد في الهيدر
         updateCartCount();
