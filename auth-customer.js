@@ -151,9 +151,19 @@
             const password = document.getElementById("login-password").value;
 
             try {
-                await CustomerAuth.login(phone, password);
+                const result = await CustomerAuth.login(phone, password);
                 if (window.showToast) showToast("تم تسجيل الدخول بنجاح 👋", "success");
-                setTimeout(() => window.location.href = "index.html", 1000);
+
+                // التوجيه حسب الدور
+                setTimeout(() => {
+                    if (result.role === 'admin') {
+                        window.location.href = 'admin-dashboard.html';
+                    } else if (result.role === 'driver') {
+                        window.location.href = 'driver-dashboard.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                }, 1000);
             } catch (err) {
                 console.error(err);
                 let msg = "بيانات الدخول غير صحيحة.";
