@@ -91,6 +91,10 @@
       });
     }
 
+    function formatPrice(price) {
+      return `${Number(price).toFixed(2)} ج.م`;
+    }
+
     function renderOrderCard(container, order) {
       const date = new Date(order.created_at).toLocaleDateString('ar-EG');
       const statusClass = getStatusClass(order.status);
