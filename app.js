@@ -1235,17 +1235,11 @@
 
       const orderInsertPayload = {
         order_code: orderCode,
-        customer_id: customerId, // للحفاظ على التوافق القديم
-        user_id: userId,        // للمستخدمين المسجلين (جديد)
+        user_id: userId,        // للمستخدمين المسجلين
         customer_name: name,
         customer_phone: phone,
         customer_address: address,
-        delivery_type: cartState.deliveryType,
-        subtotal_amount: cartState.subtotal,
-        delivery_fee: cartState.deliveryFee,
-        discount_amount: cartState.discount,
         total_amount: cartState.total,
-        coupon_code: null,
         notes: notes || null,
         is_asap: isAsap,
         scheduled_for: scheduledFor
