@@ -50,17 +50,8 @@
     };
 
     function redirectToLogin() {
-        // توجيه ذكي حسب الصفحة الحالية
-        const path = window.location.pathname;
-        if (path.includes("admin")) {
-            window.location.href = "admin-login.html";
-        } else if (path.includes("driver")) {
-            window.location.href = "driver-login.html";
-        } else if (path.includes("kitchen")) {
-            window.location.href = "admin-login.html"; // الطباخ يدخل من صفحة الأدمن أو صفحة خاصة
-        } else {
-            window.location.href = "customer-login.html";
-        }
+        // توجيه الجميع لصفحة تسجيل الدخول الموحدة
+        window.location.href = "customer-login.html";
     }
 
     function redirectToUnauthorized() {
