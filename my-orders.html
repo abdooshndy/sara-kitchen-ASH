@@ -170,7 +170,7 @@
         }
 
         // 2. جلب السلة الحالية (استخدام المفتاح الصحيح)
-        let cart = JSON.parse(localStorage.getItem('sara_cart_v2')) || [];
+        let cart = JSON.parse(localStorage.getItem('sara_kitchen_cart_v1')) || [];
 
         // 3. إضافة الأصناف للسلة
         for (const item of items) {
@@ -201,7 +201,7 @@
         }
 
         // 4. حفظ السلة (استخدام المفتاح الصحيح)
-        localStorage.setItem('sara_cart_v2', JSON.stringify(cart));
+        localStorage.setItem('sara_kitchen_cart_v1', JSON.stringify(cart));
 
         // تحديث العداد في الهيدر
         updateCartCount();
@@ -218,7 +218,7 @@
     }
 
     function updateCartCount() {
-      const cart = JSON.parse(localStorage.getItem('sara_cart')) || [];
+      const cart = JSON.parse(localStorage.getItem('sara_kitchen_cart_v1')) || [];
       const count = cart.reduce((sum, item) => sum + item.quantity, 0);
       const badge = document.getElementById('cart-count');
       if (badge) badge.textContent = count;
