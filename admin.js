@@ -1,5 +1,5 @@
 // admin.js
-// منطق لوحة تحكم الأدمن
+// منطق لوحة تحكم الأدمن (طلبات + منتجات)
 
 (function () {
     const CONFIG = window.APP_CONFIG || {};
@@ -7,14 +7,10 @@
 
     function initSupabase() {
         if (supabaseClient) return supabaseClient;
-
-        // استخدام Utils إن كان متاحاً
         if (window.getSupabaseClient) {
             supabaseClient = window.getSupabaseClient();
             return supabaseClient;
         }
-
-        // Fallback
         if (!window.supabase) return null;
         supabaseClient = window.supabase.createClient(
             CONFIG.supabase.url,
@@ -24,7 +20,7 @@
     }
 
     // ============================
-    // 1. التحقق من الصلاحيات (Auth)
+    // 1. التحقق من الصلاحيات
     // ============================
     async function checkAuth() {
         if (window.AuthGuard) {
@@ -33,25 +29,19 @@
         const client = initSupabase();
         if (!client) return;
 
-        const {
-            data: { session }
-        } = await client.auth.getSession();
-
+        const { data: { session } } = await client.auth.getSession();
         const currentPage = document.body.dataset.page;
 
-        // لو احنا في صفحة اللوجين ومعانا سيشن، وديه للداشبورد
         if (currentPage === "admin-login" && session) {
             window.location.href = "admin-dashboard.html";
             return;
         }
 
-        // لو احنا في الداشبورد ومعناش سيشن، وديه للوجين
         if (currentPage === "admin-dashboard" && !session) {
             window.location.href = "admin-login.html";
             return;
         }
 
-        // استمع لتغيرات الحالة
         client.auth.onAuthStateChange((event, session) => {
             if (event === "SIGNED_IN" && currentPage === "admin-login") {
                 window.location.href = "admin-dashboard.html";
@@ -63,7 +53,7 @@
     }
 
     // ============================
-    // 2. تسجيل الدخول (Login)
+    // 2. تسجيل الدخول
     // ============================
     function setupLogin() {
         const form = document.getElementById("admin-login-form");
@@ -86,10 +76,7 @@
             errorEl.textContent = "";
 
             const client = initSupabase();
-            const { data, error } = await client.auth.signInWithPassword({
-                email,
-                password
-            });
+            const { error } = await client.auth.signInWithPassword({ email, password });
 
             if (error) {
                 console.error("Login error:", error);
@@ -97,7 +84,6 @@
                 btn.disabled = false;
                 btn.textContent = "دخول";
             } else {
-                // التوجيه هيحصل تلقائي من checkAuth
                 showToast("تم تسجيل الدخول بنجاح", "success");
             }
         });
@@ -118,9 +104,76 @@
             });
         }
 
+        // إعداد التبويبات (Tabs)
+        setupTabs();
+
+        // تحميل البيانات الأولية
+        await loadStats(client);
         await loadOrders(client);
+        await loadProducts(client);
+
+        // إعداد مودال المنتجات
+        setupProductModal(client);
     }
 
+    // ============================
+    // 3.5 الإحصائيات (جديد)
+    // ============================
+    async function loadStats(client) {
+        const ordersEl = document.getElementById("admin-metric-orders-today");
+        const salesEl = document.getElementById("admin-metric-sales-today");
+        if (!ordersEl || !salesEl) return;
+
+        try {
+            // تاريخ اليوم (بداية اليوم)
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayISO = today.toISOString();
+
+            const { data: orders, error } = await client
+                .from("orders")
+                .select("total_amount, status")
+                .gte("created_at", todayISO)
+                .neq("status", "CANCELLED"); // استبعاد الملغي
+
+            if (error) throw error;
+
+            const count = orders.length;
+            const totalSales = orders.reduce((sum, order) => sum + (Number(order.total_amount) || 0), 0);
+
+            ordersEl.textContent = count;
+            salesEl.textContent = `${totalSales.toFixed(2)} ج.م`;
+
+        } catch (err) {
+            console.error("Error loading stats:", err);
+            ordersEl.textContent = "-";
+            salesEl.textContent = "-";
+        }
+    }
+
+    function setupTabs() {
+        const tabs = document.querySelectorAll('.tab-btn');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // إزالة التنشيط من الكل
+                document.querySelectorAll('.tab-btn').forEach(t => {
+                    t.classList.remove('active');
+                    t.style.borderBottom = '3px solid transparent';
+                });
+                document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+
+                // تنشيط التبويب المختار
+                tab.classList.add('active');
+                // tab.style.borderBottom = '3px solid #e67e22'; // لون برتقالي (اختياري)
+                const targetId = tab.dataset.target;
+                document.getElementById(targetId).style.display = 'block';
+            });
+        });
+    }
+
+    // ============================
+    // 4. إدارة الطلبات
+    // ============================
     async function loadOrders(client) {
         const container = document.getElementById("admin-orders-container");
         if (!container) return;
@@ -128,7 +181,6 @@
         container.innerHTML = '<p class="loading">جاري تحميل الطلبات...</p>';
 
         try {
-            // جلب الطلبات مرتبة بالأحدث
             const { data: orders, error } = await client
                 .from("orders")
                 .select("*")
@@ -156,7 +208,6 @@
         const div = document.createElement("div");
         div.className = "admin-order-card";
 
-        // تحديد لون الحالة
         let statusColor = "#7f8c8d";
         if (order.status === "PENDING") statusColor = "#f39c12";
         if (order.status === "PREPARING") statusColor = "#3498db";
@@ -187,15 +238,11 @@
       </div>
     `;
 
-        // تفعيل تغيير الحالة
-        // تفعيل تغيير الحالة
         const select = div.querySelector(".status-select");
         select.addEventListener("change", async (e) => {
-            const newStatus = e.target.value;
-            await updateOrderStatus(client, order.id, newStatus);
+            await updateOrderStatus(client, order.id, e.target.value);
         });
 
-        // تفعيل زر التفاصيل
         const detailsBtn = div.querySelector(".view-details-btn");
         detailsBtn.addEventListener("click", () => {
             openOrderDetails(client, order);
@@ -206,11 +253,7 @@
 
     async function updateOrderStatus(client, orderId, newStatus) {
         try {
-            const { error } = await client
-                .from("orders")
-                .update({ status: newStatus })
-                .eq("id", orderId);
-
+            const { error } = await client.from("orders").update({ status: newStatus }).eq("id", orderId);
             if (error) throw error;
             showToast(`تم تحديث الحالة إلى ${newStatus}`, "success");
         } catch (err) {
@@ -220,7 +263,170 @@
     }
 
     // ============================
-    // 4. تفاصيل الطلب (Modal)
+    // 5. إدارة المنتجات (جديد)
+    // ============================
+    async function loadProducts(client) {
+        const container = document.getElementById("admin-products-container");
+        if (!container) return;
+
+        container.innerHTML = '<p class="loading">جاري تحميل المنتجات...</p>';
+
+        try {
+            const { data: products, error } = await client
+                .from("products")
+                .select("*")
+                .order("created_at", { ascending: false });
+
+            if (error) throw error;
+
+            container.innerHTML = "";
+            if (!products || !products.length) {
+                container.innerHTML = '<p>لا توجد منتجات. أضف منتجك الأول!</p>';
+                return;
+            }
+
+            products.forEach((product) => {
+                const card = createProductCard(product, client);
+                container.appendChild(card);
+            });
+        } catch (err) {
+            console.error("Error loading products:", err);
+            container.innerHTML = '<p class="error">حدث خطأ أثناء تحميل المنتجات.</p>';
+        }
+    }
+
+    function createProductCard(product, client) {
+        const div = document.createElement("div");
+        div.className = "admin-order-card"; // نعيد استخدام نفس الستايل
+
+        const statusBadge = product.is_available
+            ? '<span class="status-badge" style="background-color: #27ae60">متاح</span>'
+            : '<span class="status-badge" style="background-color: #c0392b">غير متاح</span>';
+
+        div.innerHTML = `
+            <div class="order-header">
+                <h3>${product.name}</h3>
+                ${statusBadge}
+            </div>
+            <div class="order-details">
+                <p><strong>السعر:</strong> ${product.price} ج.م</p>
+                <p><strong>التصنيف:</strong> ${product.category || 'غير مصنف'}</p>
+                <p><strong>الوصف:</strong> ${product.description || '-'}</p>
+            </div>
+            <div class="order-actions">
+                <button class="btn btn-sm btn-primary edit-product-btn">تعديل ✏️</button>
+                <button class="btn btn-sm btn-danger delete-product-btn">حذف 🗑️</button>
+            </div>
+        `;
+
+        // زر التعديل
+        div.querySelector('.edit-product-btn').addEventListener('click', () => {
+            openProductModal(product);
+        });
+
+        // زر الحذف
+        div.querySelector('.delete-product-btn').addEventListener('click', async () => {
+            if (confirm(`هل أنت متأكد من حذف "${product.name}"؟`)) {
+                await deleteProduct(client, product.id);
+            }
+        });
+
+        return div;
+    }
+
+    async function deleteProduct(client, productId) {
+        try {
+            const { error } = await client.from('products').delete().eq('id', productId);
+            if (error) throw error;
+            showToast("تم حذف المنتج بنجاح", "success");
+            loadProducts(client); // إعادة تحميل القائمة
+        } catch (err) {
+            console.error("Error deleting product:", err);
+            showToast("فشل حذف المنتج", "error");
+        }
+    }
+
+    // ============================
+    // 6. مودال المنتجات (إضافة/تعديل)
+    // ============================
+    function setupProductModal(client) {
+        const modal = document.getElementById("product-modal");
+        const closeBtn = document.getElementById("close-product-modal-btn");
+        const addBtn = document.getElementById("add-product-btn");
+        const form = document.getElementById("product-form");
+
+        if (!modal || !form) return;
+
+        // فتح المودال للإضافة
+        if (addBtn) {
+            addBtn.addEventListener("click", () => {
+                openProductModal(null); // null means new product
+            });
+        }
+
+        // إغلاق المودال
+        closeBtn.addEventListener("click", () => modal.classList.remove("is-open"));
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) modal.classList.remove("is-open");
+        });
+
+        // معالجة الفورم
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const id = document.getElementById("product-id").value;
+            const name = document.getElementById("product-name").value;
+            const price = document.getElementById("product-price").value;
+            const category = document.getElementById("product-category").value;
+            const desc = document.getElementById("product-desc").value;
+            const isAvailable = document.getElementById("product-available").checked;
+
+            const productData = {
+                name,
+                price: Number(price),
+                category,
+                description: desc,
+                is_available: isAvailable
+            };
+
+            try {
+                if (id) {
+                    // تحديث
+                    const { error } = await client.from("products").update(productData).eq("id", id);
+                    if (error) throw error;
+                    showToast("تم تحديث المنتج بنجاح", "success");
+                } else {
+                    // إضافة جديد
+                    const { error } = await client.from("products").insert(productData);
+                    if (error) throw error;
+                    showToast("تم إضافة المنتج بنجاح", "success");
+                }
+                modal.classList.remove("is-open");
+                loadProducts(client); // تحديث القائمة
+            } catch (err) {
+                console.error("Error saving product:", err);
+                showToast("حدث خطأ أثناء الحفظ", "error");
+            }
+        });
+    }
+
+    function openProductModal(product) {
+        const modal = document.getElementById("product-modal");
+        const title = document.getElementById("product-modal-title");
+
+        // تعبئة الحقول
+        document.getElementById("product-id").value = product ? product.id : "";
+        document.getElementById("product-name").value = product ? product.name : "";
+        document.getElementById("product-price").value = product ? product.price : "";
+        document.getElementById("product-category").value = product ? product.category : "محاشي";
+        document.getElementById("product-desc").value = product ? product.description || "" : "";
+        document.getElementById("product-available").checked = product ? product.is_available : true;
+
+        title.textContent = product ? "تعديل منتج" : "إضافة منتج جديد";
+        modal.classList.add("is-open");
+    }
+
+    // ============================
+    // 7. تفاصيل الطلب (Modal)
     // ============================
     async function openOrderDetails(client, order) {
         const modal = document.getElementById("order-details-modal");
@@ -259,7 +465,7 @@
                     `;
                 });
             } else {
-                html += '<li class="modal-item-row">لا توجد أصناف مسجلة لهذا الطلب.</li>';
+                html += '<li class="modal-item-row">لا توجد أصناف مسجلة.</li>';
             }
 
             html += `</ul>
@@ -281,19 +487,14 @@
         const closeBtn = document.getElementById("close-modal-btn");
         if (!modal || !closeBtn) return;
 
-        closeBtn.addEventListener("click", () => {
-            modal.classList.remove("is-open");
-        });
-
+        closeBtn.addEventListener("click", () => modal.classList.remove("is-open"));
         modal.addEventListener("click", (e) => {
-            if (e.target === modal) {
-                modal.classList.remove("is-open");
-            }
+            if (e.target === modal) modal.classList.remove("is-open");
         });
     }
 
     // ============================
-    // 5. التشغيل عند التحميل
+    // 8. التشغيل عند التحميل
     // ============================
     document.addEventListener("DOMContentLoaded", () => {
         checkAuth();
