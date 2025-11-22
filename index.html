@@ -1,0 +1,183 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>مطبخ سارة للأكل البيتي</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+</head>
+
+<body data-page="home">
+  <!-- الهيدر -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="header-logo">
+        <!-- صورة الشعار: حطي ملف logo-sara-kitchen.png في جذر المشروع -->
+        <img src="logo-sara-kitchen.png" alt="شعار مطبخ سارة للأكل البيتي" class="header-logo-img" />
+        <span class="header-logo-text">مطبخ سارة للأكل البيتي</span>
+      </a>
+
+      <nav class="header-nav">
+        <a href="index.html" class="header-link header-link--primary">
+          الرئيسية
+        </a>
+        <a href="menu.html" class="header-link">القائمة</a>
+        <a href="cart.html" class="header-link">السلة</a>
+        <a href="track.html" class="header-link">تتبع طلب</a>
+        <a href="my-orders.html" class="header-link">طلباتي</a>
+        <a href="admin-login.html" class="header-link">دخول الأدمن</a>
+        <a href="driver-login.html" class="header-link">دخول المندوب</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <!-- هيرو / المقدّمة -->
+    <section class="section hero">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <p class="hero-eyebrow">أكل بيت مصري • تجهيز يومي طازج</p>
+          <h1 class="hero-title">أكل بيت يوصل لحد باب بيتك 🍲</h1>
+          <p class="hero-subtitle">
+            اختار وجبتك من منيو مطبخ سارة: محاشي، فراخ، لحوم، أطباق يومية
+            وعروض خاصة. اطلب في ثواني وتابع طلبك لحد ما يوصلك.
+          </p>
+
+          <div class="hero-actions">
+            <a href="menu.html" class="btn btn-primary">ابدأ الطلب الآن</a>
+            <a href="track.html" class="btn btn-outline">
+              تتبع طلب قائم
+            </a>
+          </div>
+
+          <div class="hero-meta">
+            <span>التعامل بالعملة: ج.م</span>
+            <span class="hero-dot">•</span>
+            <span>توصيل داخل وخارج المدينة</span>
+          </div>
+        </div>
+
+        <div class="hero-media">
+          <div class="hero-logo-card">
+            <img src="logo-sara-kitchen.png" alt="شعار مطبخ سارة للأكل البيتي" class="hero-logo-img" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ليه تختار مطبخ سارة -->
+    <section class="section features">
+      <h2 class="section-title">ليه تختار مطبخ سارة؟</h2>
+      <div class="features-grid">
+        <article class="card feature-card">
+          <h3 class="card-title">أكل بيت وطعم أصلي</h3>
+          <p class="card-subtitle">
+            وصفات بيتية مصرية متحضّرة في المطبخ يوميًا بجودة واهتمام
+            بالتفاصيل.
+          </p>
+        </article>
+
+        <article class="card feature-card">
+          <h3 class="card-title">تنظيم ووقت ثابت</h3>
+          <p class="card-subtitle">
+            تحديد وقت الاستلام والتوصيل بوضوح، والمتابعة من أول التحضير لحد
+            التسليم.
+          </p>
+        </article>
+
+        <article class="card feature-card">
+          <h3 class="card-title">متابعة الطلب بسهولة</h3>
+          <p class="card-subtitle">
+            تتبّع طلبك برقم الطلب S1, S2… أو برقم الموبايل واعرف حالته في أي
+            وقت.
+          </p>
+        </article>
+
+        <article class="card feature-card">
+          <h3 class="card-title">عروض وباكدجات للعيلة</h3>
+          <p class="card-subtitle">
+            باكدجات محاشي ووجبات عائلية بسعر أوفر من الطلب الفردي لكل صنف.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- إزاي المنصّة بتشتغل -->
+    <section class="section how-it-works">
+      <h2 class="section-title">إزاي المنصّة بتشتغل؟</h2>
+
+      <div class="how-grid">
+        <article class="card how-card">
+          <div class="how-step-badge">1</div>
+          <h3 class="card-title">اختار أكلك</h3>
+          <p class="card-subtitle">
+            تصفح المنيو، الأصناف الفورية، والعروض، وجمّع طلبك في السلة.
+          </p>
+        </article>
+
+        <article class="card how-card">
+          <div class="how-step-badge">2</div>
+          <h3 class="card-title">أكد بياناتك</h3>
+          <p class="card-subtitle">
+            اكتب اسمك، رقم موبايلك، عنوانك ونوع التوصيل (استلام / داخل المدينة
+            / خارجها).
+          </p>
+        </article>
+
+        <article class="card how-card">
+          <div class="how-step-badge">3</div>
+          <h3 class="card-title">تحضير وتسليم للمندوب</h3>
+          <p class="card-subtitle">
+            الأدمن يتابع التحضير ويعيّن مندوب، وحالة الطلب تتحدّث خطوة بخطوة.
+          </p>
+        </article>
+
+        <article class="card how-card">
+          <div class="how-step-badge">4</div>
+          <h3 class="card-title">استلم واتبسط</h3>
+          <p class="card-subtitle">
+            المندوب يوصّل الطلب لحد باب بيتك، وتقدر تتابع كل ده من صفحة تتبع
+            الطلب.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- تواصل -->
+    <section class="section contact-highlight">
+      <h2 class="section-title">تواصل مع مطبخ سارة</h2>
+      <p class="contact-line">
+        للتواصل أو الاستفسار: {{ رقم التواصل هيبقى من الإعدادات }}
+      </p>
+      <p class="contact-line">
+        مواعيد العمل المتوقعة: من ١٠ صباحًا حتى ١٠ مساءً – حسب الضغط في
+        المطبخ.
+      </p>
+    </section>
+  </main>
+
+  <!-- الفوتر -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>© 2025 مطبخ سارة للأكل البيتي – كل الحقوق محفوظة</div>
+      <div>التعامل بالجنيه المصري (ج.م)</div>
+    </div>
+  </footer>
+
+  <!-- مكتبة Supabase من الـ CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- ملف التهيئة -->
+  <script src="config.js"></script>
+  <script src="toast.js"></script>
+
+  <!-- ملف الجافاسكربت الرئيسي للمشروع -->
+  <script src="auth-customer.js"></script>
+  <script src="ai-chat.js"></script>
+  <script src="app.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,207 @@
+<!-- menu.html -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>القائمة - مطبخ سارة للأكل البيتي</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+</head>
+
+<body data-page="menu">
+  <!-- الهيدر نفس نمط الصفحة الرئيسية -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="header-logo">
+        <img src="logo-sara-kitchen.png" alt="شعار مطبخ سارة للأكل البيتي" class="header-logo-img" />
+        <span class="header-logo-text">مطبخ سارة للأكل البيتي</span>
+      </a>
+
+      <nav class="header-nav">
+        <a href="index.html" class="header-link">الرئيسية</a>
+        <a href="menu.html" class="header-link header-link--primary">القائمة</a>
+        <a href="cart.html" class="header-link">السلة</a>
+        <a href="track.html" class="header-link">تتبع طلب</a>
+        <a href="my-orders.html" class="header-link">طلباتي</a>
+        <a href="admin-login.html" class="header-link">دخول الأدمن</a>
+        <a href="driver-login.html" class="header-link">دخول المندوب</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <!-- شريط أعلى القائمة: عنوان + بحث + فلاتر -->
+    <section class="section menu-header">
+      <div class="menu-header-top">
+        <div>
+          <h1 class="page-title">القائمة</h1>
+          <p class="menu-header-desc">
+            اختار من الأصناف الفورية، العروض، أو تصفح المنيو بالكامل. تقدر
+            تدور باسم الصنف أو النوع.
+          </p>
+        </div>
+
+        <div class="menu-search">
+          <input type="search" id="menu-search-input" class="menu-search-input"
+            placeholder="ابحث عن صنف أو عرض (مثال: محشي، فراخ، عرض المحشي)..." />
+        </div>
+      </div>
+
+      <div class="menu-filters">
+        <button type="button" class="menu-filter-btn is-active" data-filter="all">
+          الكل
+        </button>
+        <button type="button" class="menu-filter-btn" data-filter="instant">
+          الأصناف الفورية
+        </button>
+        <button type="button" class="menu-filter-btn" data-filter="offers">
+          العروض
+        </button>
+        <button type="button" class="menu-filter-btn" data-filter="category:محاشي">
+          محاشي
+        </button>
+        <button type="button" class="menu-filter-btn" data-filter="category:فراخ">
+          فراخ
+        </button>
+        <button type="button" class="menu-filter-btn" data-filter="category:لحوم">
+          لحوم
+        </button>
+        <button type="button" class="menu-filter-btn" data-filter="category:أطباق يومية">
+          أطباق يومية
+        </button>
+        <button type="button" class="menu-filter-btn" data-filter="category:سلاطات ومقبلات">
+          سلاطات ومقبلات
+        </button>
+        <button type="button" class="menu-filter-btn" data-filter="category:حلويات">
+          حلويات
+        </button>
+      </div>
+    </section>
+
+    <!-- تقسيم الصفحة: منيو أساسي + المساعد الذكي في الجانب -->
+    <section class="section menu-layout">
+      <!-- الجزء الرئيسي: العروض + الفوري + الأصناف -->
+      <div class="menu-main">
+        <!-- قسم العروض -->
+        <section class="menu-section" id="menu-offers-section">
+          <div class="menu-section-header">
+            <h2 class="menu-section-title">العروض</h2>
+            <p class="menu-section-subtitle">
+              باكدجات وعروض مجمّعة بسعر أوفر من طلب كل صنف لوحده.
+            </p>
+          </div>
+
+          <div id="offers-container" class="menu-cards-grid">
+            <div class="menu-placeholder">
+              سيتم تحميل العروض تلقائيًا من قاعدة البيانات.
+            </div>
+          </div>
+        </section>
+
+        <!-- قسم الأصناف الفورية -->
+        <section class="menu-section" id="menu-instant-section">
+          <div class="menu-section-header">
+            <h2 class="menu-section-title">الأصناف الفورية</h2>
+            <p class="menu-section-subtitle">
+              أصناف جاهزة أسرع أو أقرب للتحضير الفوري، مثالية للأيام السريعة.
+            </p>
+          </div>
+
+          <div id="instant-products-container" class="menu-cards-grid">
+            <div class="menu-placeholder">
+              سيتم تحميل الأصناف الفورية من قاعدة البيانات.
+            </div>
+          </div>
+        </section>
+
+        <!-- كل الأصناف حسب التصنيف -->
+        <section class="menu-section" id="menu-products-section">
+          <div class="menu-section-header">
+            <h2 class="menu-section-title">كل الأصناف</h2>
+            <p class="menu-section-subtitle">
+              تصفح المنيو بالكامل حسب التصنيفات: محاشي، فراخ، لحوم، أطباق
+              يومية، سلاطات ومقبلات، حلويات.
+            </p>
+          </div>
+
+          <div id="categories-container">
+            <!-- هنا JavaScript هيقسم الأصناف حسب التصنيفات -->
+            <div class="menu-placeholder">
+              سيتم تحميل الأصناف من قاعدة البيانات وعرضها لكل تصنيف.
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- الشريط الجانبي: المساعد الذكي -->
+      <aside class="menu-sidebar">
+        <section class="card ai-assistant-card">
+          <h2 class="ai-title">المساعد الذكي لاختيار الأكل 🤖</h2>
+          <p class="ai-subtitle">
+            اكتب للمساعد عدد الأفراد، نوع الأكل اللي بتحبوه، لو في ميزانية
+            معينة أو مكونات مش عايزينها، وهو يقترح لك طلب مناسب من المنيو.
+          </p>
+
+          <textarea id="ai-assistant-input" class="ai-input" rows="4"
+            placeholder="مثال: عايزة عزومة لـ ٤ أشخاص، نحب المحشي والفراخ ومش عايزين لحوم حمراء..."></textarea>
+
+          <button type="button" class="btn btn-primary ai-submit-btn" id="ai-assistant-submit">
+            اقترح لي طلب مناسب
+          </button>
+
+          <div class="ai-result" id="ai-assistant-result">
+            <p class="ai-placeholder">
+              عند تفعيل الذكاء الاصطناعي، هيظهر هنا اقتراح طلب كامل تقدر
+              تضيفه للسلة بضغطة واحدة.
+            </p>
+          </div>
+        </section>
+      </aside>
+    </section>
+    <!-- Modal تخصيص الوجبة -->
+    <div id="product-options-modal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2 id="modal-product-name">تخصيص الطلب</h2>
+        <div id="modal-options-container">
+          <!-- سيتم تحميل الخيارات هنا -->
+        </div>
+        <div class="modal-actions">
+          <div class="modal-price-summary">
+            الإجمالي: <span id="modal-total-price">0</span>
+          </div>
+          <button id="modal-add-to-cart-btn" class="btn btn-primary">أضف للسلة</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- الفوتر -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>© 2025 مطبخ سارة للأكل البيتي – كل الحقوق محفوظة</div>
+      <div>التعامل بالجنيه المصري (ج.م)</div>
+    </div>
+  </footer>
+
+  <!-- مكتبة Supabase من الـ CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- ملف التهيئة -->
+  <!-- سكربت Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js" defer></script>
+
+  <!-- ملف التهيئة (فيه بيانات Supabase + الإعدادات<!-- ملف التهيئة -->
+  <script src="config.js"></script>
+  <script src="toast.js"></script>
+
+  <!-- ملف الجافاسكربت الرئيسي للمشروع -->
+  <script src="auth-customer.js"></script>
+  <script src="ai-chat.js"></script>
+  <script src="app.js"></script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>تسجيل حساب جديد - مطبخ سارة</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+</head>
+
+<body class="auth-body">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <img src="logo-sara-kitchen.png" alt="شعار مطبخ سارة" class="auth-logo" />
+                <h1 class="auth-title">إنشاء حساب جديد</h1>
+                <p class="auth-subtitle">سجّل عشان تتابع طلباتك وتجمع نقاط ولاء 🎁</p>
+            </div>
+
+            <form id="register-form" class="auth-form">
+                <div class="form-group">
+                    <label for="reg-phone">رقم الموبايل <span class="required">*</span></label>
+                    <input type="tel" id="reg-phone" class="form-input" placeholder="01xxxxxxxxx" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-password">كلمة المرور <span class="required">*</span></label>
+                    <input type="password" id="reg-password" class="form-input" placeholder="******" required
+                        minlength="6" />
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-name">الاسم (اختياري)</label>
+                    <input type="text" id="reg-name" class="form-input" placeholder="اسمك" />
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-address">العنوان الافتراضي (اختياري)</label>
+                    <textarea id="reg-address" class="form-input" rows="2" placeholder="العنوان بالتفصيل..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg">إنشاء الحساب</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>عندك حساب بالفعل؟ <a href="customer-login.html">سجل دخول</a></p>
+                <p><a href="index.html">العودة للرئيسية</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="utils.js"></script>
+    <script src="toast.js"></script>
+    <script src="auth-customer.js"></script>
+</body>
+
+</html>

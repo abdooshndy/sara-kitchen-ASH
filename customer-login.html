@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>تسجيل الدخول - مطبخ سارة</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+</head>
+
+<body class="auth-body">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <img src="logo-sara-kitchen.png" alt="شعار مطبخ سارة" class="auth-logo" />
+                <h1 class="auth-title">تسجيل الدخول</h1>
+                <p class="auth-subtitle">أهلاً بيك مرة تانية 👋</p>
+            </div>
+
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label for="login-phone">رقم الموبايل</label>
+                    <input type="tel" id="login-phone" class="form-input" placeholder="01xxxxxxxxx" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">كلمة المرور</label>
+                    <input type="password" id="login-password" class="form-input" placeholder="******" required />
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg">دخول</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>ليس لديك حساب؟ <a href="customer-register.html">أنشئ حساب جديد</a></p>
+                <p><a href="index.html">العودة للرئيسية</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="utils.js"></script>
+    <script src="toast.js"></script>
+    <script src="auth-customer.js"></script>
+</body>
+
+</html>

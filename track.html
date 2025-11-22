@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>متابعة الطلب - مطبخ سارة للأكل البيتي</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body data-page="track">
+  <!-- الهيدر الموحد -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="logo-area">
+        <a href="index.html" class="logo-text">
+          مطبخ سارة للأكل البيتي
+        </a>
+      </div>
+      <nav class="main-nav">
+        <a href="index.html" class="nav-link">الرئيسية</a>
+        <a href="menu.html" class="nav-link">القائمة</a>
+        <a href="cart.html" class="nav-link">السلة</a>
+        <a href="track.html" class="nav-link nav-link-active">متابعة الطلب</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <section class="hero-section hero-small">
+      <div class="container hero-inner">
+        <div>
+          <h1 class="hero-title">متابعة طلبك</h1>
+          <p class="hero-subtitle">
+            اكتب رقم الطلب ورقم الموبايل علشان نجيب لك حالة الطلب الحالية بالتفصيل.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="track-section">
+      <div class="container">
+        <!-- نموذج البحث عن الطلب -->
+        <form id="track-form" class="track-form">
+          <div class="form-row">
+            <label for="track-order-code" class="form-label">رقم الطلب</label>
+            <input id="track-order-code" type="text" class="form-input" placeholder="مثال: S15" autocomplete="off" />
+          </div>
+
+          <div class="form-row">
+            <label for="track-phone" class="form-label">رقم الموبايل</label>
+            <input id="track-phone" type="tel" class="form-input" placeholder="رقم الموبايل اللي طلبت به"
+              autocomplete="off" />
+          </div>
+
+          <button type="submit" class="btn primary-btn track-submit-btn">
+            عرض حالة الطلب
+          </button>
+
+          <p class="track-form-hint">
+            للحماية، بنستخدم رقم الطلب مع رقم الموبايل عشان نعرض بيانات الطلب الخاصة بيك.
+          </p>
+        </form>
+
+        <!-- نتيجة التتبع -->
+        <div id="track-result" class="track-result">
+          <p class="track-placeholder">
+            اكتب رقم الطلب ورقم الموبايل ثم اضغط "عرض حالة الطلب" 👆
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© مطبخ سارة للأكل البيتي - جميع الحقوق محفوظة</p>
+    </div>
+  </footer>
+
+  <!-- سكربتات -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js" defer></script>
+  <!-- ملف التهيئة -->
+  <script src="config.js"></script>
+  <script src="toast.js"></script>
+
+  <!-- ملف الجافاسكربت الرئيسي للمشروع -->
+  <script src="app.js"></script>
+</body>
+
+</html>

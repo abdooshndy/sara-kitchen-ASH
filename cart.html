@@ -1,0 +1,187 @@
+<!-- cart.html -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>السلة - مطبخ سارة للأكل البيتي</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+</head>
+
+<body data-page="cart">
+  <!-- الهيدر -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="header-logo">
+        <img src="logo-sara-kitchen.png" alt="شعار مطبخ سارة للأكل البيتي" class="header-logo-img" />
+        <span class="header-logo-text">مطبخ سارة للأكل البيتي</span>
+      </a>
+
+      <nav class="header-nav">
+        <a href="index.html" class="header-link">الرئيسية</a>
+        <a href="menu.html" class="header-link">القائمة</a>
+        <a href="cart.html" class="header-link header-link--primary">السلة</a>
+        <a href="track.html" class="header-link">تتبع طلب</a>
+        <a href="my-orders.html" class="header-link">طلباتي</a>
+        <a href="admin-login.html" class="header-link">دخول الأدمن</a>
+        <a href="driver-login.html" class="header-link">دخول المندوب</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <!-- عنوان السلة -->
+    <section class="section cart-header">
+      <h1 class="page-title">السلة</h1>
+      <p class="cart-header-desc">
+        راجِع طلبك، اختار نوع التوصيل، وأكمل بياناتك لتأكيد الطلب.
+      </p>
+    </section>
+
+    <section class="section cart-layout">
+      <!-- قائمة العناصر -->
+      <div class="cart-main">
+        <section class="cart-section">
+          <h2 class="cart-section-title">محتويات السلة</h2>
+          <div id="cart-items-container">
+            <div class="menu-placeholder">
+              يتم تحميل محتويات السلة من متصفّحك...
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ملخّص + بيانات العميل -->
+      <aside class="cart-sidebar">
+        <section class="card cart-summary-card">
+          <h2 class="cart-section-title">تفاصيل التوصيل والإجمالي</h2>
+
+          <div class="cart-delivery-options">
+            <label class="cart-radio">
+              <input type="radio" name="delivery-type" value="PICKUP" checked />
+              <span>استلام من المطبخ (بدون رسوم توصيل)</span>
+            </label>
+            <label class="cart-radio">
+              <input type="radio" name="delivery-type" value="DELIVERY_INSIDE_CITY" />
+              <span>توصيل داخل المدينة</span>
+            </label>
+            <label class="cart-radio">
+              <input type="radio" name="delivery-type" value="DELIVERY_OUTSIDE_CITY" />
+              <span>توصيل خارج المدينة</span>
+            </label>
+          </div>
+
+          <!-- قسم توقيت الطلب الجديد -->
+          <div class="cart-scheduling-options" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+            <h3 class="cart-section-subtitle" style="font-size: 16px; margin-bottom: 10px;">توقيت الطلب</h3>
+            <label class="cart-radio">
+              <input type="radio" name="order-timing" value="ASAP" checked />
+              <span>في أقرب وقت ممكن</span>
+            </label>
+            <label class="cart-radio">
+              <input type="radio" name="order-timing" value="SCHEDULED" />
+              <span>تحديد وقت لاحق</span>
+            </label>
+
+            <div id="scheduled-time-container" style="display: none; margin-top: 10px;">
+              <label for="scheduled-date" style="display: block; margin-bottom: 5px; font-size: 14px;">اختر التاريخ
+                والوقت:</label>
+              <input type="datetime-local" id="scheduled-date" class="cart-input"
+                style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+              <p class="input-hint" style="font-size: 12px; color: #666; margin-top: 4px;">متاح الحجز خلال ساعات العمل
+                (12 ظهراً - 10 مساءً)</p>
+            </div>
+          </div>
+
+          <div class="cart-totals">
+            <div class="cart-total-row">
+              <span>إجمالي الأصناف</span>
+              <span id="cart-subtotal-value">0 ج.م</span>
+            </div>
+            <div class="cart-total-row">
+              <span>رسوم التوصيل</span>
+              <span id="cart-delivery-fee-value">0 ج.م</span>
+            </div>
+            <div class="cart-total-row">
+              <span>الخصم</span>
+              <span id="cart-discount-value">0 ج.م</span>
+            </div>
+            <div class="cart-total-row cart-total-row--emphasis">
+              <span>الإجمالي المطلوب</span>
+              <span id="cart-total-value">0 ج.م</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="cart-customer-details">
+          <h2 class="cart-section-title">بيانات التوصيل</h2>
+
+          <!-- رسالة للزوار -->
+          <div id="guest-checkout-alert"
+            style="display: none; background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; color: #856404;">
+            لديك حساب؟ <a href="customer-login.html" style="font-weight: bold; text-decoration: underline;">سجل دخول</a>
+            عشان تستخدم عناوينك المحفوظة وتجمع نقاط!
+          </div>
+
+          <div class="cart-input-group">
+            <label for="cart-customer-name">الاسم</label>
+            <input type="text" id="cart-customer-name" class="cart-input" placeholder="اسمك بالكامل" />
+          </div>
+
+          <div class="cart-input-group">
+            <label for="cart-customer-phone">رقم الموبايل</label>
+            <input type="tel" id="cart-customer-phone" class="cart-input" placeholder="01xxxxxxxxx" />
+          </div>
+
+          <!-- قسم اختيار العنوان (للمسجلين) -->
+          <div id="saved-addresses-container" class="cart-input-group" style="display: none;">
+            <label for="saved-address-select">اختر عنوان محفوظ</label>
+            <select id="saved-address-select" class="cart-input" style="background-color: #fff;">
+              <option value="">-- اختر عنوان --</option>
+            </select>
+            <div style="margin-top: 5px; font-size: 0.85rem;">
+              <a href="#" id="use-new-address-link" style="color: #8d4b2b;">أو استخدم عنوان جديد</a>
+            </div>
+          </div>
+
+          <!-- حقل العنوان اليدوي (للزوار أو عنوان جديد) -->
+          <div id="manual-address-container" class="cart-input-group">
+            <label for="cart-customer-address">العنوان بالتفصيل</label>
+            <textarea id="cart-customer-address" class="cart-input" rows="2"
+              placeholder="المنطقة، الشارع، رقم العمارة، رقم الشقة..."></textarea>
+          </div>
+
+          <div class="cart-input-group">
+            <label for="cart-notes">ملاحظات إضافية (اختياري)</label>
+            <textarea id="cart-notes" class="cart-input" rows="2" placeholder="مثال: بدون شطة، رن الجرس..."></textarea>
+          </div>
+        </section>
+        <button type="button" class="btn btn-primary cart-submit-btn" id="cart-place-order-btn">
+          تأكيد الطلب
+        </button>
+    </section>
+    </aside>
+    </section>
+  </main>
+
+  <!-- الفوتر -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>© 2025 مطبخ سارة للأكل البيتي – كل الحقوق محفوظة</div>
+      <div>التعامل بالجنيه المصري (ج.م)</div>
+    </div>
+  </footer>
+
+  <!-- الترتيب مهم: Supabase ثم config ثم app -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- ملف التهيئة -->
+  <script src="toast.js"></script>
+  <script src="auth-customer.js"></script>
+  <!-- ملف الجافاسكربت الرئيسي للمشروع -->
+  <script src="auth-customer.js"></script>
+  <script src="ai-chat.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>

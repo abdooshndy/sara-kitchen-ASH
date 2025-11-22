@@ -1,0 +1,59 @@
+<!-- driver-dashboard.html -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>لوحة المندوب - مطبخ سارة</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+</head>
+
+<body data-page="driver-dashboard">
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-logo">مطبخ سارة - مندوب</div>
+      <nav class="header-nav">
+        <a href="driver-dashboard.html" class="header-link header-link--primary">طلباتي اليوم</a>
+        <button id="driver-logout-btn" class="header-link"
+          style="background:none; border:none; cursor:pointer; font-family:inherit;">تسجيل خروج</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <section class="section">
+      <h1 class="page-title">لوحة المندوب</h1>
+      <!-- Metrics -->
+      <div class="grid grid-2"
+        style="margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+        <div class="card">
+          <div class="card-title">عدد الطلبات</div>
+          <div class="card-price" id="driver-metric-orders-count">-</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">قائمة الطلبات للتوصيل</h2>
+      <div id="driver-orders-container" class="orders-grid">
+        <!-- سيتم تحميل الطلبات هنا -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>© 2025 مطبخ سارة</div>
+      <div>لوحة المندوب</div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="toast.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="driver.js"></script>
+</body>
+
+</html>

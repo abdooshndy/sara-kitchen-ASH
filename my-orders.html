@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>طلباتي - مطبخ سارة</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+</head>
+
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">مطبخ سارة 👩‍🍳</a>
+      <nav class="nav">
+        <a href="index.html" class="nav-link">الرئيسية</a>
+        <a href="menu.html" class="nav-link">المنيو</a>
+        <a href="my-orders.html" class="nav-link active">طلباتي</a>
+        <a href="profile.html" class="nav-link">حسابي</a>
+        <a href="cart.html" class="nav-link cart-link">
+          السلة <span id="cart-count" class="cart-badge">0</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="margin-top: 2rem;">
+    <h1 class="page-title">سجل طلباتي 📜</h1>
+
+    <div id="orders-container" class="orders-list">
+      <div class="spinner"></div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="utils.js"></script>
+  <script src="toast.js"></script>
+  <script src="auth-customer.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const client = window.getSupabaseClient();
+      const session = await CustomerAuth.checkSession();
+
+      if (!session) {
+        document.getElementById('orders-container').innerHTML = `
+                <div class="text-center" style="padding: 3rem;">
+                    <p>يجب تسجيل الدخول لعرض طلباتك السابقة.</p>
+                    <a href="customer-login.html" class="btn btn-primary">تسجيل الدخول</a>
+                </div>
+            `;
+        return;
+      }
+
+      // جلب الطلبات
+      await fetchOrders(client, session.user.id);
+
+      // اشتراك Realtime
+      const channel = client
+        .channel('my-orders')
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'orders', filter: `user_id=eq.${session.user.id}` },
+          (payload) => {
+            console.log('Order updated!', payload);
+            if (window.showToast) showToast(`تم تحديث حالة الطلب #${payload.new.order_code} إلى ${getStatusText(payload.new.status)} 🔔`, "info");
+            fetchOrders(client, session.user.id);
+          }
+        )
+        .subscribe();
+    });
+
+    async function fetchOrders(client, userId) {
+      const { data: orders, error } = await client
+        .from('orders')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      const container = document.getElementById('orders-container');
+      container.innerHTML = '';
+
+      if (!orders || orders.length === 0) {
+        container.innerHTML = '<p class="text-center">لم تقم بأي طلبات بعد. <a href="menu.html">اطلب الآن!</a></p>';
+        return;
+      }
+
+      orders.forEach(order => {
+        renderOrderCard(container, order);
+      });
+    }
+
+    function renderOrderCard(container, order) {
+      const date = new Date(order.created_at).toLocaleDateString('ar-EG');
+      const statusClass = getStatusClass(order.status);
+      const statusText = getStatusText(order.status);
+
+      const card = document.createElement('div');
+      card.className = 'order-card';
+      card.style.cssText = "background: #fff; border: 1px solid #eee; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05);";
+
+      card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <div>
+                    <strong>رقم الطلب: #${order.order_code}</strong>
+                    <div style="font-size: 0.9rem; color: #666;">${date}</div>
+                </div>
+                <div>
+                    <span class="badge ${statusClass}">${statusText}</span>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-weight: bold; color: #8d4b2b;">
+                    الإجمالي: ${formatPrice(order.total_amount)}
+                </div>
+                <button class="btn btn-sm btn-outline-primary" onclick="reorder('${order.id}', event)">اطلب مرة أخرى 🔄</button>
+            </div>
+        `;
+      container.appendChild(card);
+    }
+
+    function getStatusClass(status) {
+      switch (status) {
+        case 'PENDING': return 'badge-warning'; // أصفر
+        case 'PREPARING': return 'badge-info'; // أزرق
+        case 'READY': return 'badge-primary'; // لون أساسي
+        case 'DELIVERED': return 'badge-success'; // أخضر
+        case 'CANCELLED': return 'badge-danger'; // أحمر
+        default: return '';
+      }
+    }
+
+    function getStatusText(status) {
+      const map = {
+        'PENDING': 'قيد الانتظار',
+        'PREPARING': 'جاري التحضير',
+        'READY': 'جاهز للتوصيل',
+        'DELIVERED': 'تم التوصيل',
+        'CANCELLED': 'ملغي'
+      };
+      return map[status] || status;
+    }
+
+    async function reorder(orderId, event) {
+      const client = window.getSupabaseClient();
+      const btn = event.target;
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "جاري الإضافة...";
+
+      try {
+        // 1. جلب أصناف الطلب
+        const { data: items, error } = await client
+          .from('order_items')
+          .select('*')
+          .eq('order_id', orderId);
+
+        if (error) throw error;
+
+        if (!items || items.length === 0) {
+          showToast("لا توجد أصناف في هذا الطلب", "error");
+          return;
+        }
+
+        // 2. جلب السلة الحالية
+        let cart = JSON.parse(localStorage.getItem('sara_cart')) || [];
+
+        // 3. إضافة الأصناف للسلة
+        // ملاحظة: قد تكون الأسعار تغيرت، لكن للتبسيط سنستخدم السعر المسجل وقت الطلب
+        // أو الأفضل: نجلب السعر الحالي من جدول المنتجات (سأفعل ذلك للأمان)
+
+        for (const item of items) {
+          // التحقق من توفر المنتج وسعره الحالي
+          const { data: product } = await client
+            .from('products')
+            .select('price, name, is_available')
+            .eq('id', item.product_id)
+            .single();
+
+          if (product && product.is_available) {
+            // البحث هل المنتج موجود بالفعل في السلة؟
+            const existingItemIndex = cart.findIndex(c => c.id === item.product_id);
+            if (existingItemIndex > -1) {
+              cart[existingItemIndex].quantity += item.quantity;
+            } else {
+              cart.push({
+                id: item.product_id,
+                name: product.name,
+                price: product.price, // السعر الحالي
+                quantity: item.quantity,
+                // Options logic is complex to restore, we might skip or assume default
+                // For now, we assume basic items. If options existed, we might miss them here without complex logic.
+              });
+            }
+          }
+        }
+
+        // 4. حفظ السلة
+        localStorage.setItem('sara_cart', JSON.stringify(cart));
+
+        // تحديث العداد في الهيدر
+        updateCartCount();
+
+        showToast("تم إضافة الطلب للسلة! 🛒", "success");
+        setTimeout(() => window.location.href = "cart.html", 1000);
+
+      } catch (err) {
+        console.error(err);
+        showToast("حدث خطأ أثناء إعادة الطلب", "error");
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    }
+
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('sara_cart')) || [];
+      const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+      const badge = document.getElementById('cart-count');
+      if (badge) badge.textContent = count;
+    }
+  </script>
+</body>
+
+</html>

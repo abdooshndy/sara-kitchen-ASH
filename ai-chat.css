@@ -1,0 +1,199 @@
+/* ai-chat.css */
+
+/* الزر العائم */
+.ai-chat-trigger {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    /* LTR default, will adjust for RTL */
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #8d4b2b 0%, #6f3b21 100%);
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(141, 75, 43, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 9999;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.ai-chat-trigger:hover {
+    transform: scale(1.1);
+}
+
+.ai-chat-icon {
+    font-size: 30px;
+    color: white;
+}
+
+/* نافذة الشات */
+.ai-chat-window {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 350px;
+    height: 500px;
+    max-height: 80vh;
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 9999;
+    transform-origin: bottom right;
+    transform: scale(0);
+    opacity: 0;
+    transition: all 0.3s ease;
+    border: 1px solid #eee;
+}
+
+.ai-chat-window.open {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* الهيدر */
+.ai-chat-header {
+    background: linear-gradient(135deg, #8d4b2b 0%, #6f3b21 100%);
+    color: white;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ai-chat-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ai-chat-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.ai-chat-close:hover {
+    opacity: 1;
+}
+
+/* منطقة الرسائل */
+.ai-chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.message {
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.message.bot {
+    background-color: #fff;
+    color: #333;
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.message.user {
+    background-color: #8d4b2b;
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+}
+
+.message.typing {
+    background-color: #fff;
+    color: #888;
+    font-style: italic;
+    align-self: flex-start;
+    padding: 8px 12px;
+}
+
+/* منطقة الإدخال */
+.ai-chat-input-area {
+    padding: 10px;
+    background-color: #fff;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 8px;
+}
+
+.ai-chat-input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 24px;
+    outline: none;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+}
+
+.ai-chat-input:focus {
+    border-color: #8d4b2b;
+}
+
+.ai-chat-send {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #8d4b2b;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.ai-chat-send:hover {
+    background-color: #6f3b21;
+}
+
+.ai-chat-send:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* RTL Support */
+[dir="rtl"] .ai-chat-trigger {
+    right: auto;
+    left: 20px;
+}
+
+[dir="rtl"] .ai-chat-window {
+    right: auto;
+    left: 20px;
+    transform-origin: bottom left;
+}
+
+[dir="rtl"] .message.bot {
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 2px;
+}
+
+[dir="rtl"] .message.user {
+    border-bottom-right-radius: 12px;
+    border-bottom-left-radius: 2px;
+}

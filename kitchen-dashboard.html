@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>لوحة المطبخ - مطبخ سارة</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+</head>
+
+<body data-page="kitchen-dashboard">
+    <header class="header">
+        <div class="header-inner">
+            <div class="header-logo">مطبخ سارة - المطبخ 👨‍🍳</div>
+            <nav class="header-nav">
+                <a href="kitchen-dashboard.html" class="header-link header-link--primary">الطلبات الحالية</a>
+                <button id="kitchen-logout-btn" class="header-link"
+                    style="background:none; border:none; cursor:pointer; font-family:inherit;">تسجيل خروج</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <section class="section">
+            <h1 class="page-title">لوحة تحضير الطلبات</h1>
+            <div class="grid grid-2"
+                style="margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                <div class="card">
+                    <div class="card-title">طلبات قيد الانتظار</div>
+                    <div class="card-price" id="kitchen-metric-pending">0</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">جاري التحضير</div>
+                    <div class="card-price" id="kitchen-metric-preparing">0</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">قائمة التحضير</h2>
+            <div id="kitchen-orders-container" class="orders-grid">
+                <!-- سيتم تحميل الطلبات هنا -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for Order Details -->
+    <div id="order-details-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" id="close-modal-btn">&times;</button>
+            <h2 class="modal-title">تفاصيل الطلب</h2>
+            <div id="modal-body">
+                <!-- Items will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div>© 2025 مطبخ سارة</div>
+            <div>لوحة المطبخ</div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="toast.js"></script>
+    <script src="auth-guard.js"></script>
+    <script src="kitchen.js"></script>
+</body>
+
+</html>

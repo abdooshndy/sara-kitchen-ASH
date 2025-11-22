@@ -1,0 +1,74 @@
+<!-- admin-dashboard.html -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>لوحة تحكم الأدمن - مطبخ سارة</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+</head>
+
+<body data-page="admin-dashboard">
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-logo">مطبخ سارة - أدمن</div>
+      <nav class="header-nav">
+        <a href="admin-dashboard.html" class="header-link header-link--primary">الرئيسية</a>
+        <button id="admin-logout-btn" class="header-link"
+          style="background:none; border:none; cursor:pointer; font-family:inherit;">تسجيل خروج</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <section class="section">
+      <h1 class="page-title">لوحة تحكم الأدمن</h1>
+      <!-- Metrics can be dynamic later -->
+      <div class="grid grid-2"
+        style="margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+        <div class="card">
+          <div class="card-title">طلبات اليوم</div>
+          <div class="card-price" id="admin-metric-orders-today">-</div>
+        </div>
+        <div class="card">
+          <div class="card-title">مبيعات اليوم</div>
+          <div class="card-price" id="admin-metric-sales-today">-</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="orders">
+      <h2 class="section-title">الطلبات الأخيرة</h2>
+      <div id="admin-orders-container" class="orders-grid">
+        <!-- سيتم تحميل الطلبات هنا -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal for Order Details -->
+  <div id="order-details-modal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close" id="close-modal-btn">&times;</button>
+      <h2 class="modal-title">تفاصيل الطلب</h2>
+      <div id="modal-body">
+        <!-- Items will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>© 2025 مطبخ سارة</div>
+      <div>لوحة تحكم الإدارة</div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="toast.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="admin.js"></script>
+</body>
+
+</html>
