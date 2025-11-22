@@ -1324,47 +1324,9 @@
   }
 
   async function getOrCreateCustomerId(client, name, phone, address) {
-    try {
-      const { data, error } = await client
-        .from("customers")
-        .select("id")
-        .eq("phone", phone)
-        .limit(1);
-
-      if (error) {
-        console.error("خطأ أثناء جلب العميل:", error);
-      }
-
-      const existing = data && data.length ? data[0] : null;
-
-      if (existing && existing.id) {
-        await client
-          .from("customers")
-          .update({
-            name: name,
-            default_address: address
-          })
-          .eq("id", existing.id);
-
-        return existing.id;
-      }
-
-      const { data: inserted, error: insertError } = await client
-        .from("customers")
-        .insert({
-          name: name,
-          phone: phone,
-          default_address: address
-        })
-        .select("id")
-        .single();
-
-      if (insertError) throw insertError;
-      return inserted.id;
-    } catch (err) {
-      console.error("خطأ في getOrCreateCustomerId:", err);
-      throw err;
-    }
+    // No longer using customers table - just return null
+    // Data will be stored directly in orders table
+    return null;
   }
 
 
