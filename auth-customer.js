@@ -68,7 +68,19 @@
             });
 
             if (error) throw error;
-            return data;
+
+            // جلب دور المستخدم
+            const { data: profile, error: profileError } = await client
+                .from('profiles')
+                .select('role')
+                .eq('id', data.user.id)
+                .single();
+
+            if (profileError) {
+                console.warn("Could not fetch user role:", profileError);
+            }
+
+            return { ...data, role: profile?.role || 'customer' };
         },
 
         // تسجيل الخروج

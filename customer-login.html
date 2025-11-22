@@ -14,7 +14,7 @@
             <div class="auth-header">
                 <img src="logo-sara-kitchen.png" alt="شعار مطبخ سارة" class="auth-logo" />
                 <h1 class="auth-title">تسجيل الدخول</h1>
-                <p class="auth-subtitle">أهلاً بيك مرة تانية 👋</p>
+                <p class="auth-subtitle">أهلاً بك في مطبخ سارة 👋</p>
             </div>
 
             <form id="login-form" class="auth-form">
@@ -43,6 +43,50 @@
     <script src="utils.js"></script>
     <script src="toast.js"></script>
     <script src="auth-customer.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('login-form');
+            if (!form) return;
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const phone = document.getElementById('login-phone').value;
+                const password = document.getElementById('login-password').value;
+                const btn = form.querySelector('button');
+                const originalText = btn.textContent;
+
+                if (!phone || !password) {
+                    showToast("الرجاء إدخال البيانات كاملة", "error");
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.textContent = "جاري الدخول...";
+
+                try {
+                    const result = await window.CustomerAuth.login(phone, password);
+                    showToast(`أهلاً بك! تم تسجيل الدخول بنجاح`, "success");
+
+                    // التوجيه حسب الدور
+                    setTimeout(() => {
+                        if (result.role === 'admin') {
+                            window.location.href = 'admin-dashboard.html';
+                        } else if (result.role === 'driver') {
+                            window.location.href = 'driver-dashboard.html';
+                        } else {
+                            window.location.href = 'index.html';
+                        }
+                    }, 1000);
+
+                } catch (err) {
+                    console.error(err);
+                    showToast("فشل الدخول: تأكد من الرقم وكلمة المرور", "error");
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
