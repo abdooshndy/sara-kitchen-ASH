@@ -23,8 +23,8 @@ window.APP_CONFIG = {
 
   // إعدادات Supabase (ينفع تستخدم في الفرونت)
   supabase: {
-    url: "https://punytspxcyesaddpsygp.supabase.co",
-    anonKey: "sb_publishable_RO3lw5VJ0H3WXCgoI7qV-A_XuvC-dNP"
+    url: "https://kpbhczaodejxcxxscvlz.supabase.co",
+    anonKey: "sb_publishable_dAupSNcu9bsA3nhuyAUFKw_dc7Tb4cD"
   },
 
   // إعدادات الذكاء الاصطناعي (OpenAI)
