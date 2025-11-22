@@ -295,38 +295,24 @@
       const [catsRes, prodsRes, offersRes] = await Promise.all([
         client
           .from("categories")
-          .select("*, media:media(id, source_type, url, storage_path)")
-          .eq("is_active", true)
-          .order("sort_order", { ascending: true }),
+          .select("*")
+          .order("display_order", { ascending: true }),
         client
           .from("products")
-          .select("*, media:media(id, source_type, url, storage_path)")
+          .select("*")
           .eq("is_available", true),
         client
           .from("offers")
-          .select("*, media:media(id, source_type, url, storage_path)")
-          .eq("is_active", true)
+          .select("*")
       ]);
 
       if (catsRes.error) throw catsRes.error;
       if (prodsRes.error) throw prodsRes.error;
-      if (offersRes.error) throw offersRes.error;
+      // Offers table doesn't exist yet, ignore error
 
-      // نضيف imageUrl لكل كيان (تصنيف / منتج / عرض)
-      menuState.categories = (catsRes.data || []).map((cat) => ({
-        ...cat,
-        imageUrl: cat.media ? getMediaUrlFromRow(cat.media) : null
-      }));
-
-      menuState.products = (prodsRes.data || []).map((p) => ({
-        ...p,
-        imageUrl: p.media ? getMediaUrlFromRow(p.media) : null
-      }));
-
-      menuState.offers = (offersRes.data || []).map((o) => ({
-        ...o,
-        imageUrl: o.media ? getMediaUrlFromRow(o.media) : null
-      }));
+      menuState.categories = catsRes.data || [];
+      menuState.products = prodsRes.data || [];
+      menuState.offers = offersRes.data || [];
     } catch (err) {
       console.error("خطأ أثناء تحميل بيانات المنيو:", err);
       const msg = document.createElement("div");
