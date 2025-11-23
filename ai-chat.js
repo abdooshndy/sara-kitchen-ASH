@@ -166,8 +166,8 @@ ${menuContext}
 `;
 
         // ج. الاتصال بـ Gemini API
-        // مفتاح جديد
-        const API_KEY = 'AIzaSyBmQ7_VzJxQB4dZ7bGp0ZC5QlZxKN9FvOo'; // سأستخدم نفس المفتاح للتجربة، لكن سأضيف معالجة أخطاء أفضل لمعرفة السبب الحقيقي
+        // مفتاح جديد (تم التحديث)
+        const API_KEY = 'AIzaSyDMgEVfRMEZSXJ90J-NT534R7527c4s9TI';
 
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
