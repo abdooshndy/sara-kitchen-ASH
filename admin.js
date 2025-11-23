@@ -183,29 +183,33 @@
                     resultContainer.innerHTML = '<p>لم يتم العثور على محادثات.</p>';
                 } else {
                     let html = '<table class="admin-table" style="width:100%; margin-top:10px;">';
-                    html += '<thead><tr><th>الاسم</th><th>المعرف (Chat ID)</th><th>نسخ</th></tr></thead><tbody>';
+                    html += '<thead><tr><th>الاسم</th><th>المعرف (Chat ID)</th><th>حفظ تلقائي</th></tr></thead><tbody>';
 
                     chats.forEach(chat => {
                         html += `
                             <tr>
                                 <td>${chat.name} <br><small style="color:#888">${chat.username}</small></td>
                                 <td style="font-family:monospace; font-weight:bold;">${chat.id}</td>
-                                <td><button class="btn btn-sm btn-outline copy-btn" data-id="${chat.id}">نسخ</button></td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary save-chat-btn" data-id="${chat.id}" data-name="${chat.name}">
+                                        حفظ للإشعارات
+                                    </button>
+                                </td>
                             </tr>
                         `;
                     });
 
                     html += '</tbody></table>';
-                    html += '<p style="margin-top:10px; font-size:0.9rem; color:#27ae60;">✅ انسخ هذه المعرفات وضعها في ملف config.js</p>';
+                    html += '<p style="margin-top:10px; font-size:0.9rem; color:#27ae60;">✅ اضغط "حفظ للإشعارات" لإضافة هذا الشخص لقائمة المستقبلين تلقائياً.</p>';
 
                     resultContainer.innerHTML = html;
 
-                    // تفعيل أزرار النسخ
-                    resultContainer.querySelectorAll('.copy-btn').forEach(btn => {
-                        btn.addEventListener('click', () => {
-                            navigator.clipboard.writeText(btn.dataset.id);
-                            btn.textContent = "تم النسخ!";
-                            setTimeout(() => btn.textContent = "نسخ", 1500);
+                    // تفعيل أزرار الحفظ التلقائي
+                    resultContainer.querySelectorAll('.save-chat-btn').forEach(btn => {
+                        btn.addEventListener('click', async () => {
+                            const chatId = btn.dataset.id;
+                            const chatName = btn.dataset.name;
+                            await saveTelegramChatId(chatId, chatName, btn);
                         });
                     });
                 }
@@ -218,6 +222,64 @@
                 checkBtn.textContent = "جلب المعرفات (Get Chat IDs)";
             }
         });
+    }
+
+    async function saveTelegramChatId(chatId, chatName, btn) {
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "جاري الحفظ...";
+
+        try {
+            const client = initSupabase();
+
+            // 1. جلب الإعدادات الحالية
+            let { data: setting } = await client
+                .from('system_settings')
+                .select('value')
+                .eq('key', 'telegram_config')
+                .single();
+
+            let config = setting ? setting.value : { botToken: "", chatIds: [] };
+
+            // التأكد من وجود المصفوفة
+            if (!config.chatIds) config.chatIds = [];
+
+            // إضافة الـ ID إذا لم يكن موجوداً
+            if (!config.chatIds.includes(chatId)) {
+                config.chatIds.push(chatId);
+            } else {
+                alert("هذا المستخدم مضاف بالفعل!");
+                btn.disabled = false;
+                btn.textContent = "مضاف ✅";
+                return;
+            }
+
+            // تحديث التوكن أيضاً إذا كان مدخلاً
+            const tokenInput = document.getElementById("telegram-bot-token-check");
+            if (tokenInput && tokenInput.value) {
+                config.botToken = tokenInput.value.trim();
+            }
+
+            // 2. حفظ الإعدادات الجديدة
+            const { error } = await client
+                .from('system_settings')
+                .upsert({
+                    key: 'telegram_config',
+                    value: config,
+                    updated_at: new Date().toISOString()
+                });
+
+            if (error) throw error;
+
+            alert(`تم إضافة ${chatName} لقائمة الإشعارات بنجاح! 🎉`);
+            btn.textContent = "تم الحفظ ✅";
+
+        } catch (err) {
+            console.error("Error saving chat ID:", err);
+            alert("فشل الحفظ في قاعدة البيانات. تأكد من تشغيل ملف SQL الخاص بجدول system_settings.");
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
     }
     // متغير لتخزين المستخدمين للبحث المحلي
     let allUsers = [];

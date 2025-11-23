@@ -262,12 +262,32 @@
 
   // إرسال إشعار تيليجرام
   async function sendTelegramNotification(orderData) {
-    if (!CONFIG.telegram || !CONFIG.telegram.botToken || !CONFIG.telegram.chatIds || !CONFIG.telegram.chatIds.length) {
+    // محاولة جلب الإعدادات من قاعدة البيانات أولاً
+    let telegramConfig = CONFIG.telegram;
+
+    try {
+      const client = initSupabaseClient();
+      if (client) {
+        const { data: setting } = await client
+          .from('system_settings')
+          .select('value')
+          .eq('key', 'telegram_config')
+          .single();
+
+        if (setting && setting.value && setting.value.botToken) {
+          telegramConfig = setting.value;
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to fetch telegram config from DB, using static config.", err);
+    }
+
+    if (!telegramConfig || !telegramConfig.botToken || !telegramConfig.chatIds || !telegramConfig.chatIds.length) {
       console.warn("Telegram config missing or incomplete.");
       return;
     }
 
-    const { botToken, chatIds } = CONFIG.telegram;
+    const { botToken, chatIds } = telegramConfig;
     const { orderCode, name, phone, address, total, items, notes, isAsap, scheduledFor } = orderData;
 
     let message = `🔔 *طلب جديد!* (#${orderCode})\n\n`;
