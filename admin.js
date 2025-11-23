@@ -329,27 +329,25 @@
             // التأكد من وجود المصفوفة
             if (!config.chatIds) config.chatIds = [];
 
-            // التحقق مما إذا كان المعرف موجوداً بالفعل
-            const existingIndex = config.chatIds.findIndex(c => c.id === chatId || c === chatId); // دعم التنسيق القديم (string)
+            // تنظيف المصفوفة من أي قيم نصية قديمة وتحويلها لكائنات
+            config.chatIds = config.chatIds.map(c => {
+                if (typeof c === 'string') return { id: c, name: 'مستخدم', role: 'admin' };
+                return c;
+            });
 
-            // تحديد الدور (افتراضي: أدمن)
-            // يمكننا تحسين هذا لاحقاً بسؤال المستخدم، لكن حالياً سنفترض 'admin' ونسمح بتغييره من القائمة
+            // التحقق مما إذا كان المعرف موجوداً بالفعل
+            // نستخدم String comparison للأمان
+            const existingIndex = config.chatIds.findIndex(c => String(c.id) === String(chatId));
+
             const role = 'admin';
 
             if (existingIndex !== -1) {
-                // إذا كان موجوداً، نحدث الاسم فقط (أو نتجاهل)
-                // لكن إذا كان string قديم، نحوله لكائن
-                if (typeof config.chatIds[existingIndex] === 'string') {
-                    config.chatIds[existingIndex] = { id: chatId, name: chatName, role: role };
-                } else {
-                    alert("هذا المستخدم مضاف بالفعل!");
-                    btn.disabled = false;
-                    btn.textContent = "مضاف ✅";
-                    return;
-                }
+                // إذا كان موجوداً، نحدث الاسم فقط
+                config.chatIds[existingIndex].name = chatName;
+                // لا نغير الدور إذا كان موجوداً
             } else {
                 // إضافة جديد
-                config.chatIds.push({ id: chatId, name: chatName, role: role });
+                config.chatIds.push({ id: String(chatId), name: chatName, role: role });
             }
 
             // تحديث التوكن أيضاً إذا كان مدخلاً
@@ -369,7 +367,7 @@
 
             if (error) throw error;
 
-            alert(`تم إضافة ${chatName} لقائمة الإشعارات بنجاح! 🎉\nيمكنك تغيير دوره من القائمة المحفوظة.`);
+            alert(`تم إضافة ${chatName} لقائمة الإشعارات بنجاح! 🎉`);
             btn.textContent = "تم الحفظ ✅";
 
         } catch (err) {
@@ -379,6 +377,7 @@
             btn.textContent = originalText;
         }
     }
+
     // متغير لتخزين المستخدمين للبحث المحلي
     let allUsers = [];
 
