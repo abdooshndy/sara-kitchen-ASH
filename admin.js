@@ -119,11 +119,106 @@
         setupProductModal(client);
         setupCategoryModal(client);
         setupModalClose();
+
+        // إعداد مساعد تيليجرام
+        setupTelegramHelper();
     }
 
     // ============================
-    // 3.6 إدارة المستخدمين (جديد)
+    // 3.7 مساعد تيليجرام (جديد)
     // ============================
+    function setupTelegramHelper() {
+        const checkBtn = document.getElementById("check-telegram-updates-btn");
+        const tokenInput = document.getElementById("telegram-bot-token-check");
+        const resultContainer = document.getElementById("telegram-ids-result");
+
+        if (!checkBtn || !tokenInput || !resultContainer) return;
+
+        // محاولة تعبئة التوكن من الكونفيج لو موجود
+        if (CONFIG.telegram && CONFIG.telegram.botToken && CONFIG.telegram.botToken !== "YOUR_BOT_TOKEN_HERE") {
+            tokenInput.value = CONFIG.telegram.botToken;
+        }
+
+        checkBtn.addEventListener("click", async () => {
+            const token = tokenInput.value.trim();
+            if (!token) {
+                alert("من فضلك أدخل Bot Token");
+                return;
+            }
+
+            checkBtn.disabled = true;
+            checkBtn.textContent = "جاري البحث...";
+            resultContainer.innerHTML = '<p class="loading">جاري الاتصال بتيليجرام...</p>';
+
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${token}/getUpdates`);
+                const data = await response.json();
+
+                if (!data.ok) {
+                    throw new Error(data.description || "فشل الاتصال");
+                }
+
+                const updates = data.result;
+                if (!updates || !updates.length) {
+                    resultContainer.innerHTML = '<p style="color: orange;">لا توجد رسائل جديدة. تأكد من إرسال رسالة للبوت أولاً.</p>';
+                    checkBtn.disabled = false;
+                    checkBtn.textContent = "جلب المعرفات (Get Chat IDs)";
+                    return;
+                }
+
+                // استخراج الـ Chat IDs الفريدة
+                const chats = new Map();
+                updates.forEach(update => {
+                    if (update.message && update.message.chat) {
+                        const chat = update.message.chat;
+                        chats.set(chat.id, {
+                            id: chat.id,
+                            name: `${chat.first_name || ''} ${chat.last_name || ''}`.trim() || chat.title || 'Unknown',
+                            username: chat.username ? `@${chat.username}` : '-'
+                        });
+                    }
+                });
+
+                if (chats.size === 0) {
+                    resultContainer.innerHTML = '<p>لم يتم العثور على محادثات.</p>';
+                } else {
+                    let html = '<table class="admin-table" style="width:100%; margin-top:10px;">';
+                    html += '<thead><tr><th>الاسم</th><th>المعرف (Chat ID)</th><th>نسخ</th></tr></thead><tbody>';
+
+                    chats.forEach(chat => {
+                        html += `
+                            <tr>
+                                <td>${chat.name} <br><small style="color:#888">${chat.username}</small></td>
+                                <td style="font-family:monospace; font-weight:bold;">${chat.id}</td>
+                                <td><button class="btn btn-sm btn-outline copy-btn" data-id="${chat.id}">نسخ</button></td>
+                            </tr>
+                        `;
+                    });
+
+                    html += '</tbody></table>';
+                    html += '<p style="margin-top:10px; font-size:0.9rem; color:#27ae60;">✅ انسخ هذه المعرفات وضعها في ملف config.js</p>';
+
+                    resultContainer.innerHTML = html;
+
+                    // تفعيل أزرار النسخ
+                    resultContainer.querySelectorAll('.copy-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            navigator.clipboard.writeText(btn.dataset.id);
+                            btn.textContent = "تم النسخ!";
+                            setTimeout(() => btn.textContent = "نسخ", 1500);
+                        });
+                    });
+                }
+
+            } catch (err) {
+                console.error(err);
+                resultContainer.innerHTML = `<p class="error">حدث خطأ: ${err.message}</p>`;
+            } finally {
+                checkBtn.disabled = false;
+                checkBtn.textContent = "جلب المعرفات (Get Chat IDs)";
+            }
+        });
+    }
     // متغير لتخزين المستخدمين للبحث المحلي
     let allUsers = [];
 
