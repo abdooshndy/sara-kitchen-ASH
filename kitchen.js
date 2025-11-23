@@ -202,9 +202,90 @@
 
             if (error) throw error;
             showToast(`تم تحديث الحالة إلى ${newStatus}`, "success");
+
+            // إرسال إشعار للسائق إذا أصبحت الحالة "مع المندوب"
+            if (newStatus === "WITH_DRIVER") {
+                console.log("[Kitchen] Status changed to WITH_DRIVER. Fetching full order details...");
+                const { data: fullOrder } = await client.from('orders').select('*').eq('id', orderId).single();
+                if (fullOrder) {
+                    console.log("[Kitchen] Full order fetched:", fullOrder);
+                    await sendDriverNotification(fullOrder);
+                } else {
+                    console.error("[Kitchen] Failed to fetch full order details.");
+                }
+            }
+
         } catch (err) {
             console.error("Error updating status:", err);
             showToast("فشل تحديث الحالة", "error");
+        }
+    }
+
+    // ============================
+    // دوال مساعدة للإشعارات
+    // ============================
+    function formatPrice(amount) {
+        return new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' }).format(amount);
+    }
+
+    async function sendDriverNotification(order) {
+        console.log("[Kitchen] Starting sendDriverNotification for order:", order.id);
+        let telegramConfig = CONFIG.telegram;
+        try {
+            const client = initSupabase();
+            if (client) {
+                const { data: setting } = await client.from('system_settings').select('value').eq('key', 'telegram_config').single();
+                if (setting && setting.value) telegramConfig = setting.value;
+            }
+        } catch (e) { console.error("[Kitchen] Error fetching config:", e); }
+
+        if (!telegramConfig || !telegramConfig.botToken || !telegramConfig.chatIds) {
+            console.error("[Kitchen] Missing Telegram config:", telegramConfig);
+            return;
+        }
+
+        const { botToken, chatIds } = telegramConfig;
+        console.log("[Kitchen] Loaded Chat IDs:", chatIds);
+
+        let message = `🚗 *طلب جاهز للتوصيل!* (#${order.order_code})\n\n`;
+        message += `👤 *العميل:* ${order.customer_name}\n`;
+        message += `📱 *الهاتف:* ${order.customer_phone}\n`;
+        message += `📍 *العنوان:* ${order.customer_address}\n`;
+
+        if (order.customer_address && order.customer_address.includes('http')) {
+            message += `🗺 [فتح الموقع على الخريطة](${order.customer_address})\n`;
+        }
+
+        message += `\n💰 *المطلوب تحصيله:* ${formatPrice(order.total_amount)}\n`;
+        if (order.notes) message += `📝 *ملاحظات:* ${order.notes}\n`;
+        message += `\n✅ الرجاء تأكيد الاستلام من المطبخ.`;
+
+        if (Array.isArray(chatIds)) {
+            chatIds.forEach(async (chat) => {
+                let id = typeof chat === 'string' ? chat : chat.id;
+                let role = typeof chat === 'string' ? 'admin' : (chat.role || 'admin');
+
+                console.log(`[Kitchen] Checking chat ${id} with role ${role}`);
+
+                if (role === 'driver' || role === 'admin') {
+                    console.log(`[Kitchen] Sending to ${role} (${id})...`);
+                    try {
+                        const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                chat_id: id,
+                                text: message,
+                                parse_mode: 'Markdown'
+                            })
+                        });
+                        const json = await res.json();
+                        console.log(`[Kitchen] Send result for ${id}:`, json);
+                    } catch (err) { console.error(`[Kitchen] Failed to send to ${id}`, err); }
+                } else {
+                    console.log(`[Kitchen] Skipping ${id} (Role: ${role})`);
+                }
+            });
         }
     }
 
