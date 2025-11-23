@@ -33,5 +33,11 @@ window.APP_CONFIG = {
     provider: "OPENAI",
     model: "gpt-4.1-mini",
     apiKey: null // المفتاح بيتخزّن في الباك إند مش هنا
+  },
+
+  // إعدادات تيليجرام (Telegram Notifications)
+  telegram: {
+    botToken: "YOUR_BOT_TOKEN_HERE", // استبدله بالتوكن الخاص بالبوت
+    chatIds: ["YOUR_CHAT_ID_HERE"] // استبدله بمعرفات الشات (الأدمن والطباخين)
   }
 };
