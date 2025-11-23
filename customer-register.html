@@ -9,6 +9,23 @@
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <style>
+        /* Fix for Leaflet tiles getting distorted by global CSS */
+        .leaflet-pane img,
+        .leaflet-tile,
+        .leaflet-marker-icon,
+        .leaflet-marker-shadow {
+            max-width: none !important;
+            max-height: none !important;
+        }
+
+        /* Ensure map container is visible */
+        #reg-map-container {
+            background-color: #eee;
+            /* Placeholder color */
+            z-index: 1;
+        }
+    </style>
 </head>
 
 <body class="auth-body">
