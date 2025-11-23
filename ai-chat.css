@@ -3,8 +3,8 @@
 /* الزر العائم */
 #ai-chat-trigger {
     position: fixed;
-    bottom: 280px;
-    /* رفع كبير بعيداً عن القائمة */
+    bottom: 90px;
+    /* فوق القائمة السفلية مباشرة */
     left: 20px;
     width: 60px;
     height: 60px;
@@ -39,8 +39,7 @@
 /* نافذة الشات */
 .ai-chat-trigger {
     position: fixed;
-    bottom: 150px;
-    /* رفع أكثر */
+    bottom: 90px;
     right: 20px;
     width: 350px;
     height: 500px;

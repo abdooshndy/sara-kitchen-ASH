@@ -83,8 +83,8 @@
 /* 2. View Switcher Button */
 .view-switcher-btn {
     position: fixed;
-    bottom: 350px;
-    /* رفع كبير جداً */
+    bottom: 160px;
+    /* فوق زر المساعد */
     left: 20px;
     /* على اليسار عشان العربية RTL */
     width: 45px;
