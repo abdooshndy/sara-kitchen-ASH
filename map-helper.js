@@ -37,10 +37,11 @@
             }
         }
 
-        // Force map resize calculation to ensure visibility in modal
-        setTimeout(() => {
-            map.invalidateSize();
-        }, 200);
+        // Force map resize calculation multiple times to ensure visibility
+        // This handles different CSS transition speeds
+        setTimeout(() => map.invalidateSize(), 100);
+        setTimeout(() => map.invalidateSize(), 300);
+        setTimeout(() => map.invalidateSize(), 500);
 
         // Set initial selected location
         selectedLocation = { lat: initialLat, lng: initialLng };
