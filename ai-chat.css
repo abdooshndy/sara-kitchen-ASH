@@ -1,22 +1,30 @@
 /* ai-chat.css */
 
 /* الزر العائم */
-.ai-chat-trigger {
+#ai-chat-toggle-btn {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    /* LTR default, will adjust for RTL */
+    bottom: 140px;
+    /* رفع الزر لأعلى بعيداً عن القائمة السفلية */
+    left: 20px;
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, #8d4b2b 0%, #6f3b21 100%);
     border-radius: 50%;
-    box-shadow: 0 4px 15px rgba(141, 75, 43, 0.4);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    cursor: move;
+    /* cursor للإشارة أنه قابل للتحريك */
+    z-index: 1002;
+    font-size: 1.8rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    z-index: 9999;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: transform 0.2s, box-shadow 0.2s;
+    user-select: none;
+    /* منع تحديد النص أثناء السحب */
+    touch-action: none;
+    /* تحسين الأداء على اللمس */
 }
 
 .ai-chat-trigger:hover {

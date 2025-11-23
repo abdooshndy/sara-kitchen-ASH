@@ -129,4 +129,88 @@
         return data.reply;
     }
 
+    // ============================
+    // Drag & Drop للزر
+    // ============================
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+
+    // تحميل الموضع المحفوظ
+    const savedPosition = localStorage.getItem('ai_chat_position');
+    if (savedPosition) {
+        const { x, y } = JSON.parse(savedPosition);
+        trigger.style.transform = `translate(${x}px, ${y}px)`;
+        xOffset = x;
+        yOffset = y;
+    }
+
+    function dragStart(e) {
+        // تجاهل السحب إذا كانت النافذة مفتوحة
+        if (windowEl.classList.contains('open')) {
+            return;
+        }
+
+        if (e.type === "touchstart") {
+            initialX = e.touches[0].clientX - xOffset;
+            initialY = e.touches[0].clientY - yOffset;
+        } else {
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+        }
+
+        if (e.target === trigger || trigger.contains(e.target)) {
+            isDragging = true;
+        }
+    }
+
+    function dragEnd(e) {
+        if (!isDragging) return;
+
+        initialX = currentX;
+        initialY = currentY;
+
+        isDragging = false;
+
+        // حفظ الموضع
+        localStorage.setItem('ai_chat_position', JSON.stringify({ x: xOffset, y: yOffset }));
+    }
+
+    function drag(e) {
+        if (!isDragging) return;
+
+        e.preventDefault();
+
+        if (e.type === "touchmove") {
+            currentX = e.touches[0].clientX - initialX;
+            currentY = e.touches[0].clientY - initialY;
+        } else {
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+        }
+
+        xOffset = currentX;
+        yOffset = currentY;
+
+        setTranslate(currentX, currentY, trigger);
+    }
+
+    function setTranslate(xPos, yPos, el) {
+        el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+    }
+
+    // Event listeners للسحب
+    trigger.addEventListener("mousedown", dragStart);
+    trigger.addEventListener("touchstart", dragStart);
+
+    document.addEventListener("mouseup", dragEnd);
+    document.addEventListener("touchend", dragEnd);
+
+    document.addEventListener("mousemove", drag);
+    document.addEventListener("touchmove", drag);
+
 })();
