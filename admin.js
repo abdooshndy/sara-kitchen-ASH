@@ -561,6 +561,68 @@
     }
 
     // ============================
+    // دوال مساعدة للإشعارات (نسخة محلية للأدمن)
+    // ============================
+    function formatPrice(amount) {
+        return new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' }).format(amount);
+    }
+
+    async function sendDriverNotification(order) {
+        // محاولة جلب الإعدادات
+        let telegramConfig = CONFIG.telegram;
+        try {
+            const client = initSupabase();
+            if (client) {
+                const { data: setting } = await client.from('system_settings').select('value').eq('key', 'telegram_config').single();
+                if (setting && setting.value) telegramConfig = setting.value;
+            }
+        } catch (e) { console.error(e); }
+
+        if (!telegramConfig || !telegramConfig.botToken || !telegramConfig.chatIds) return;
+
+        const { botToken, chatIds } = telegramConfig;
+
+        // تجهيز الرسالة
+        let message = `🚗 *طلب جاهز للتوصيل!* (#${order.order_code})\n\n`;
+        message += `👤 *العميل:* ${order.customer_name}\n`;
+        message += `📱 *الهاتف:* ${order.customer_phone}\n`;
+        message += `📍 *العنوان:* ${order.customer_address}\n`;
+
+        // رابط الموقع (Google Maps) لو العنوان يحتوي على رابط
+        if (order.customer_address && order.customer_address.includes('http')) {
+            message += `🗺 [فتح الموقع على الخريطة](${order.customer_address})\n`;
+        }
+
+        message += `\n💰 *المطلوب تحصيله:* ${formatPrice(order.total_amount)}\n`;
+
+        if (order.notes) message += `📝 *ملاحظات:* ${order.notes}\n`;
+
+        message += `\n✅ الرجاء تأكيد الاستلام من المطبخ.`;
+
+        // إرسال للسائقين فقط
+        if (Array.isArray(chatIds)) {
+            chatIds.forEach(async (chat) => {
+                let id = typeof chat === 'string' ? chat : chat.id;
+                let role = typeof chat === 'string' ? 'admin' : (chat.role || 'admin');
+
+                if (role === 'driver' || role === 'admin') {
+                    try {
+                        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                chat_id: id,
+                                text: message,
+                                parse_mode: 'Markdown'
+                            })
+                        });
+                    } catch (err) { console.error(`Failed to send to ${id}`, err); }
+                }
+            });
+        }
+    }
+
+    // ============================
     // 3.5 الإحصائيات
     // ============================
     async function loadStats(client) {
