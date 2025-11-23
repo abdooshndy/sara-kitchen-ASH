@@ -260,6 +260,59 @@
     }
   }
 
+  // إرسال إشعار تيليجرام
+  async function sendTelegramNotification(orderData) {
+    if (!CONFIG.telegram || !CONFIG.telegram.botToken || !CONFIG.telegram.chatIds || !CONFIG.telegram.chatIds.length) {
+      console.warn("Telegram config missing or incomplete.");
+      return;
+    }
+
+    const { botToken, chatIds } = CONFIG.telegram;
+    const { orderCode, name, phone, address, total, items, notes, isAsap, scheduledFor } = orderData;
+
+    let message = `🔔 *طلب جديد!* (#${orderCode})\n\n`;
+    message += `👤 *العميل:* ${name}\n`;
+    message += `📱 *الهاتف:* ${phone}\n`;
+    message += `📍 *العنوان:* ${address}\n`;
+    message += `💰 *الإجمالي:* ${formatPrice(total)}\n`;
+
+    if (!isAsap && scheduledFor) {
+      const date = new Date(scheduledFor);
+      const timeStr = date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+      message += `⏰ *وقت التوصيل:* ${timeStr}\n`;
+    }
+
+    message += `\n🛒 *الطلبات:* \n`;
+    items.forEach(item => {
+      message += `- ${item.quantity}x ${item.name}\n`;
+    });
+
+    if (notes) {
+      message += `\n📝 *ملاحظات:* ${notes}\n`;
+    }
+
+    message += `\n🌍 [عرض الطلب في لوحة التحكم](${window.location.origin}/admin-login.html)`;
+
+    // إرسال لكل Chat ID
+    chatIds.forEach(async (chatId) => {
+      if (chatId === "YOUR_CHAT_ID_HERE") return; // Skip placeholder
+      try {
+        const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+        await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: message,
+            parse_mode: 'Markdown'
+          })
+        });
+      } catch (err) {
+        console.error(`Failed to send Telegram message to ${chatId}:`, err);
+      }
+    });
+  }
+
   // ============================
   // 3) منطق صفحة المنيو
   // ============================
@@ -1288,6 +1341,20 @@
         total: cartState.total,
         isAsap: isAsap,
         scheduledFor: scheduledFor
+      });
+
+      // إرسال إشعار تيليجرام (للأدمن والطباخين)
+      sendTelegramNotification({
+        orderCode: order.order_code,
+        name,
+        phone,
+        address,
+        deliveryType: cartState.deliveryType,
+        notes,
+        items: itemsSnapshot,
+        total: cartState.total,
+        isAsap,
+        scheduledFor
       });
 
       cartState.items = [];
