@@ -252,9 +252,9 @@
         message += `📱 *الهاتف:* ${order.customer_phone}\n`;
         message += `📍 *العنوان:* ${order.customer_address}\n`;
 
-        if (order.customer_address && order.customer_address.includes('http')) {
-            message += `🗺 [فتح الموقع على الخريطة](${order.customer_address})\n`;
-        }
+        // رابط Google Maps - يتم إنشاءه دائماً من العنوان
+        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.customer_address)}`;
+        message += `🗺 [فتح الموقع على خرائط جوجل](${mapsUrl})\n`;
 
         message += `\n💰 *المطلوب تحصيله:* ${formatPrice(order.total_amount)}\n`;
         if (order.notes) message += `📝 *ملاحظات:* ${order.notes}\n`;
