@@ -1,7 +1,7 @@
 /* ai-chat.css */
 
 /* الزر العائم */
-#ai-chat-toggle-btn {
+#ai-chat-trigger {
     position: fixed;
     bottom: 280px;
     /* رفع كبير بعيداً عن القائمة */
