@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="mobile.css" />
   <link rel="stylesheet" href="ai-menu-btn.css" />
+  <link rel="stylesheet" href="loyalty.css" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 </head>
 
@@ -51,7 +52,8 @@
 
         <!-- زر المساعد الذكي -->
         <div class="ai-help-container">
-          <button id="ai-help-btn" class="ai-help-btn" onclick="window.toggleAIChat()">
+          <button id="ai-help-btn" class="ai-help-btn"
+            onclick="if(window.toggleAIChat) { window.toggleAIChat(); } else { alert('جاري تحميل المساعد... لحظة واحدة'); }">
             <span class="ai-icon">🤖</span> محتار تطلب إيه؟ اسأل الشيف سارة
           </button>
         </div>
@@ -143,27 +145,30 @@
         </section>
       </div>
 
-      <!-- الشريط الجانبي: المساعد الذكي -->
+      <!-- الشريط الجانبي: برنامج الولاء -->
       <aside class="menu-sidebar">
-        <section class="card ai-assistant-card">
-          <h2 class="ai-title">المساعد الذكي لاختيار الأكل 🤖</h2>
-          <p class="ai-subtitle">
-            اكتب للمساعد عدد الأفراد، نوع الأكل اللي بتحبوه، لو في ميزانية
-            معينة أو مكونات مش عايزينها، وهو يقترح لك طلب مناسب من المنيو.
+        <section class="card loyalty-card">
+          <div class="loyalty-header">
+            <h2 class="loyalty-title">🎁 برنامج ولاء سارة</h2>
+            <div class="loyalty-badge">عضو مميز</div>
+          </div>
+
+          <div class="loyalty-balance">
+            <span class="loyalty-points">0</span>
+            <span class="loyalty-label">نقطة</span>
+          </div>
+
+          <p class="loyalty-desc">
+            اطلب أكتر.. جمع نقاط.. واستبدلها بوجبات مجانية!
+            كل 1 جنيه = 1 نقطة.
           </p>
 
-          <textarea id="ai-assistant-input" class="ai-input" rows="4"
-            placeholder="مثال: عايزة عزومة لـ ٤ أشخاص، نحب المحشي والفراخ ومش عايزين لحوم حمراء..."></textarea>
-
-          <button type="button" class="btn btn-primary ai-submit-btn" id="ai-assistant-submit">
-            اقترح لي طلب مناسب
-          </button>
-
-          <div class="ai-result" id="ai-assistant-result">
-            <p class="ai-placeholder">
-              عند تفعيل الذكاء الاصطناعي، هيظهر هنا اقتراح طلب كامل تقدر
-              تضيفه للسلة بضغطة واحدة.
-            </p>
+          <div class="loyalty-actions">
+            <button type="button" class="btn btn-primary loyalty-btn"
+              onclick="alert('قريباً: سيتم تفعيل استبدال النقاط!')">
+              استبدال النقاط
+            </button>
+            <a href="profile.html" class="loyalty-link">سجل حركات النقاط</a>
           </div>
         </section>
       </aside>

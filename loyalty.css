@@ -1,0 +1,85 @@
+/* تنسيقات كارت الولاء في المنيو */
+.loyalty-card {
+    background: linear-gradient(135deg, #fff 0%, #fff9f0 100%);
+    border: 2px solid #e67e22;
+    text-align: center;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(230, 126, 34, 0.15);
+}
+
+.loyalty-header {
+    margin-bottom: 20px;
+}
+
+.loyalty-title {
+    color: #d35400;
+    font-size: 1.4rem;
+    margin-bottom: 5px;
+    font-weight: 800;
+}
+
+.loyalty-badge {
+    background: #f1c40f;
+    color: #fff;
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.loyalty-balance {
+    margin: 20px 0;
+    position: relative;
+    display: inline-block;
+}
+
+.loyalty-points {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: #2c3e50;
+    line-height: 1;
+    display: block;
+}
+
+.loyalty-label {
+    font-size: 1rem;
+    color: #7f8c8d;
+    font-weight: bold;
+}
+
+.loyalty-desc {
+    color: #7f8c8d;
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.loyalty-btn {
+    width: 100%;
+    background: #d35400;
+    border: none;
+    padding: 12px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: transform 0.2s;
+}
+
+.loyalty-btn:hover {
+    background: #e67e22;
+    transform: translateY(-2px);
+}
+
+.loyalty-link {
+    color: #d35400;
+    font-size: 0.9rem;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.loyalty-link:hover {
+    text-decoration: underline;
+}
