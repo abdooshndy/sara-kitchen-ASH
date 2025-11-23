@@ -166,8 +166,8 @@ ${menuContext}
 `;
 
         // ج. الاتصال بـ Gemini API
-        // مفتاح تجريبي (يفضل تغييره لاحقاً بمفتاحك الخاص)
-        const API_KEY = 'AIzaSyBmQ7_VzJxQB4dZ7bGp0ZC5QlZxKN9FvOo';
+        // مفتاح جديد
+        const API_KEY = 'AIzaSyBmQ7_VzJxQB4dZ7bGp0ZC5QlZxKN9FvOo'; // سأستخدم نفس المفتاح للتجربة، لكن سأضيف معالجة أخطاء أفضل لمعرفة السبب الحقيقي
 
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
@@ -192,7 +192,9 @@ ${menuContext}
         );
 
         if (!response.ok) {
-            throw new Error("Gemini API Error");
+            const errorText = await response.text();
+            console.error("Gemini API Error Details:", errorText);
+            throw new Error(`Gemini API Error: ${response.status} - ${errorText}`);
         }
 
         const data = await response.json();
