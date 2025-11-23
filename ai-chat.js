@@ -109,7 +109,7 @@
         if (el) el.remove();
     }
 
-    // دالة الاتصال بالـ Backend
+    // دالة الاتصال بالـ Backend أو Gemini مباشرة
     async function callAIFunction(userMessage) {
         const client = window.getSupabaseClient ? window.getSupabaseClient() : (window.supabase ? window.supabase.createClient(APP_CONFIG.supabase.url, APP_CONFIG.supabase.anonKey) : null);
 
@@ -117,16 +117,86 @@
             throw new Error("Supabase client not initialized");
         }
 
-        const { data, error } = await client.functions.invoke('ai-chat', {
-            body: { message: userMessage }
-        });
+        try {
+            // 1. محاولة الاتصال بـ Edge Function أولاً
+            const { data, error } = await client.functions.invoke('ai-chat', {
+                body: { message: userMessage }
+            });
 
-        if (error) {
-            console.error("Edge Function Error:", error);
-            throw error;
+            if (!error && data && data.reply) {
+                return data.reply;
+            }
+
+            // إذا فشل الاتصال بالدالة (مثلاً لم يتم رفعها)، نستخدم الحل البديل (Client-side)
+            console.warn("Edge Function failed, falling back to client-side AI...");
+            throw new Error("Function not deployed");
+
+        } catch (err) {
+            // 2. الحل البديل: الاتصال بـ Gemini مباشرة من المتصفح
+            return await callGeminiDirectly(client, userMessage);
+        }
+    }
+
+    // دالة الاتصال المباشر (Fallback)
+    async function callGeminiDirectly(supabase, userMessage) {
+        // أ. جلب المنيو
+        const { data: products } = await supabase
+            .from('products')
+            .select('name, price, description, category, is_available')
+            .eq('is_available', true);
+
+        // ب. تجهيز السياق
+        const menuContext = products && products.length > 0
+            ? products.map(p => `- ${p.name} (${p.category}): ${p.price} جنيه. ${p.description || ''}`).join('\n')
+            : 'لا توجد أصناف متاحة حالياً.';
+
+        const systemPrompt = `
+أنتِ "سارة"، شيف ماهرة ومساعدة ذكية في منصة "مطبخ سارة للأكل البيتي".
+دورك هو مساعدة العملاء في اختيار وجبات لذيذة، الإجابة عن استفساراتهم حول المنيو، وتقديم اقتراحات.
+
+قواعدك:
+1. تحدثي باللهجة المصرية الودودة والمحترمة (مثل: "يا فندم"، "من عيوني"، "أحلى أكل بيتي").
+2. اعتمدي فقط على قائمة الطعام المرفقة أدناه في إجاباتك. لا تخترعي أصناف غير موجودة.
+3. إذا سأل العميل عن شيء غير موجود، اعتذري بلطف واقترحي بديلاً متاحاً.
+4. حاولي دائماً تشجيع العميل على الطلب ("تحب أضيفه للسلة؟").
+5. اجعلي إجاباتك قصيرة ومفيدة (لا تتجاوزي 3-4 جمل إلا عند الضرورة).
+
+قائمة الطعام المتاحة اليوم:
+${menuContext}
+`;
+
+        // ج. الاتصال بـ Gemini API
+        // مفتاح تجريبي (يفضل تغييره لاحقاً بمفتاحك الخاص)
+        const API_KEY = 'AIzaSyBmQ7_VzJxQB4dZ7bGp0ZC5QlZxKN9FvOo';
+
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    contents: [
+                        {
+                            role: 'user',
+                            parts: [{ text: systemPrompt + "\n\nسؤال العميل: " + userMessage }]
+                        }
+                    ],
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: 500,
+                    }
+                })
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Gemini API Error");
         }
 
-        return data.reply;
+        const data = await response.json();
+        return data.candidates[0].content.parts[0].text;
     }
 
     // ============================
