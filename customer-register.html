@@ -101,6 +101,11 @@
                 statusElementId: 'reg-location-status',
                 addressFieldId: 'reg-address'
             });
+
+            // Temporary check to confirm update
+            setTimeout(() => {
+                if (window.showToast) showToast("تم تحميل تحديث الخريطة الجديد 🗺️", "success");
+            }, 1000);
         }
     </script>
 </body>
