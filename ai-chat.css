@@ -37,7 +37,8 @@
 }
 
 /* نافذة الشات */
-.ai-chat-trigger {
+/* نافذة الشات */
+.ai-chat-window {
     position: fixed;
     bottom: 90px;
     right: 20px;
