@@ -113,11 +113,110 @@
         await loadOrders(client);
         await loadProducts(client);
         await loadCategories(client);
+        await loadUsers(client);
 
         // إعداد المودالات
         setupProductModal(client);
         setupCategoryModal(client);
         setupModalClose();
+    }
+
+    // ============================
+    // 3.6 إدارة المستخدمين (جديد)
+    // ============================
+    async function loadUsers(client) {
+        const container = document.getElementById("admin-users-container");
+        if (!container) return;
+
+        container.innerHTML = '<p class="loading">جاري تحميل المستخدمين...</p>';
+
+        try {
+            const { data: users, error } = await client
+                .from("profiles")
+                .select("*")
+                .order("created_at", { ascending: false });
+
+            if (error) throw error;
+
+            container.innerHTML = "";
+            if (!users || !users.length) {
+                container.innerHTML = '<p>لا يوجد مستخدمين مسجلين.</p>';
+                return;
+            }
+
+            // جلب المستخدم الحالي لمنع تعديل صلاحياته بنفسه
+            const { data: { session } } = await client.auth.getSession();
+            const currentUserId = session?.user?.id;
+
+            users.forEach((user) => {
+                const card = createUserCard(user, client, currentUserId);
+                container.appendChild(card);
+            });
+        } catch (err) {
+            console.error("Error loading users:", err);
+            container.innerHTML = '<p class="error">حدث خطأ أثناء تحميل المستخدمين (تأكد من الصلاحيات).</p>';
+        }
+    }
+
+    function createUserCard(user, client, currentUserId) {
+        const div = document.createElement("div");
+        div.className = "admin-order-card";
+
+        const isSelf = user.id === currentUserId;
+        const roleColors = {
+            'admin': '#c0392b',
+            'cook': '#d35400',
+            'driver': '#2980b9',
+            'customer': '#27ae60'
+        };
+
+        div.innerHTML = `
+            <div class="order-header">
+                <h3>${user.full_name || 'مستخدم بدون اسم'}</h3>
+                <span class="status-badge" style="background-color: ${roleColors[user.role] || '#7f8c8d'}">${user.role}</span>
+            </div>
+            <div class="order-details">
+                <p><strong>الهاتف:</strong> ${user.phone || '-'}</p>
+                <p><strong>تاريخ التسجيل:</strong> ${new Date(user.created_at).toLocaleDateString('ar-EG')}</p>
+            </div>
+            <div class="order-actions">
+                <label>تغيير الصلاحية:</label>
+                <select class="role-select" data-id="${user.id}" ${isSelf ? 'disabled' : ''}>
+                    <option value="customer" ${user.role === 'customer' ? 'selected' : ''}>زبون (Customer)</option>
+                    <option value="driver" ${user.role === 'driver' ? 'selected' : ''}>سائق (Driver)</option>
+                    <option value="cook" ${user.role === 'cook' ? 'selected' : ''}>طباخ (Cook)</option>
+                    <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>أدمن (Admin)</option>
+                </select>
+                ${isSelf ? '<small style="color:red; display:block;">لا يمكنك تغيير صلاحياتك</small>' : ''}
+            </div>
+        `;
+
+        if (!isSelf) {
+            const select = div.querySelector(".role-select");
+            select.addEventListener("change", async (e) => {
+                const newRole = e.target.value;
+                if (confirm(`هل أنت متأكد من تغيير صلاحية "${user.full_name}" إلى ${newRole}؟`)) {
+                    await updateUserRole(client, user.id, newRole);
+                } else {
+                    // إعادة القيمة السابقة عند الإلغاء
+                    e.target.value = user.role;
+                }
+            });
+        }
+
+        return div;
+    }
+
+    async function updateUserRole(client, userId, newRole) {
+        try {
+            const { error } = await client.from("profiles").update({ role: newRole }).eq("id", userId);
+            if (error) throw error;
+            showToast(`تم تحديث الصلاحية إلى ${newRole}`, "success");
+            loadUsers(client); // تحديث القائمة
+        } catch (err) {
+            console.error("Error updating role:", err);
+            showToast("فشل تحديث الصلاحية", "error");
+        }
     }
 
     // ============================
