@@ -5,9 +5,10 @@
     <meta charset="UTF-8" />
     <title>تسجيل حساب جديد - مطبخ سارة</title>
     <link rel="stylesheet" href="styles.css" />
-    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet JS (Moved to head to ensure loading before usage) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         /* Fix for Leaflet tiles getting distorted by global CSS */
         .leaflet-pane img,
@@ -113,11 +114,7 @@
         </div>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha384-puJ8QoExKz32aaDWkN4WYnJXPY3VLJXSk3xATRn4hjcJYxHE62vZ6V/کوی1o1y5v5VhgXB"
-        crossorigin=""></script>
-
+    <!-- Leaflet JS removed from here -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <script src="toast.js"></script>
