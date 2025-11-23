@@ -48,6 +48,8 @@
         والتصنيفات</button>
       <button class="tab-btn" data-target="users-section"
         style="background: none; border: none; font-size: 1.1rem; font-weight: bold; cursor: pointer; padding: 0.5rem 1rem; border-bottom: 3px solid transparent;">المستخدمين</button>
+      <button class="tab-btn" data-target="settings-section"
+        style="background: none; border: none; font-size: 1.1rem; font-weight: bold; cursor: pointer; padding: 0.5rem 1rem; border-bottom: 3px solid transparent;">الإعدادات</button>
     </div>
 
     <!-- Orders Section -->
@@ -70,6 +72,38 @@
 
       <div id="admin-users-container" class="orders-grid">
         <!-- سيتم تحميل المستخدمين هنا -->
+      </div>
+    </section>
+
+    <!-- Settings Section -->
+    <section id="settings-section" class="tab-content" style="display: none;">
+      <h2 class="section-title">إعدادات النظام</h2>
+
+      <div class="card" style="max-width: 600px; margin: 0 auto;">
+        <h3>مساعد إعدادات تيليجرام 🤖</h3>
+        <p style="color: #666; margin-bottom: 1rem;">
+          بسبب سياسات تيليجرام، لا يمكن الإرسال لرقم الهاتف مباشرة. يجب استخدام <b>Chat ID</b>.
+          <br>
+          استخدم هذه الأداة لمعرفة الـ ID الخاص بك أو بالموطفين بسهولة.
+        </p>
+
+        <div style="background: #f9f9f9; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+          <ol style="margin-right: 1.5rem; margin-bottom: 1rem;">
+            <li>افتح البوت الخاص بك في تيليجرام.</li>
+            <li>اضغط <b>Start</b> أو أرسل أي رسالة (مثلاً: "مرحباً").</li>
+            <li>اضغط الزر أدناه لجلب المعرفات (IDs).</li>
+          </ol>
+
+          <div class="form-group">
+            <label>Bot Token (للتجربة فقط - لن يتم حفظه)</label>
+            <input type="text" id="telegram-bot-token-check" class="form-input" placeholder="ضع التوكن هنا مؤقتاً...">
+          </div>
+
+          <button id="check-telegram-updates-btn" class="btn btn-primary" style="width: 100%;">جلب المعرفات (Get Chat
+            IDs)</button>
+        </div>
+
+        <div id="telegram-ids-result" style="margin-top: 1rem;"></div>
       </div>
     </section>
 
