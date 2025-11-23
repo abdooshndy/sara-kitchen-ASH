@@ -37,7 +37,7 @@ window.APP_CONFIG = {
 
   // إعدادات تيليجرام (Telegram Notifications)
   telegram: {
-    botToken: "YOUR_BOT_TOKEN_HERE", // استبدله بالتوكن الخاص بالبوت
-    chatIds: ["YOUR_CHAT_ID_HERE"] // استبدله بمعرفات الشات (الأدمن والطباخين)
+    botToken: "8321408865:AAEourC4yWH6lt9RXiIw5zGaHwSDZRyGIOU", // تم التحديث
+    chatIds: ["YOUR_CHAT_ID_HERE"] // استبدله بمعرفات الشات (استخدم أداة المساعد في الإعدادات)
   }
 };
