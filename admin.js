@@ -124,8 +124,12 @@
     // ============================
     // 3.6 إدارة المستخدمين (جديد)
     // ============================
+    // متغير لتخزين المستخدمين للبحث المحلي
+    let allUsers = [];
+
     async function loadUsers(client) {
         const container = document.getElementById("admin-users-container");
+        const searchInput = document.getElementById("user-search-input");
         if (!container) return;
 
         container.innerHTML = '<p class="loading">جاري تحميل المستخدمين...</p>';
@@ -138,24 +142,43 @@
 
             if (error) throw error;
 
-            container.innerHTML = "";
-            if (!users || !users.length) {
-                container.innerHTML = '<p>لا يوجد مستخدمين مسجلين.</p>';
-                return;
+            allUsers = users || []; // حفظ نسخة للبحث
+            renderUsers(client, allUsers);
+
+            // تفعيل البحث
+            if (searchInput) {
+                searchInput.addEventListener("input", (e) => {
+                    const query = e.target.value.toLowerCase();
+                    const filtered = allUsers.filter(u =>
+                        (u.full_name && u.full_name.toLowerCase().includes(query)) ||
+                        (u.phone && u.phone.includes(query))
+                    );
+                    renderUsers(client, filtered);
+                });
             }
 
-            // جلب المستخدم الحالي لمنع تعديل صلاحياته بنفسه
-            const { data: { session } } = await client.auth.getSession();
-            const currentUserId = session?.user?.id;
-
-            users.forEach((user) => {
-                const card = createUserCard(user, client, currentUserId);
-                container.appendChild(card);
-            });
         } catch (err) {
             console.error("Error loading users:", err);
             container.innerHTML = '<p class="error">حدث خطأ أثناء تحميل المستخدمين (تأكد من الصلاحيات).</p>';
         }
+    }
+
+    async function renderUsers(client, usersList) {
+        const container = document.getElementById("admin-users-container");
+        container.innerHTML = "";
+
+        if (!usersList || !usersList.length) {
+            container.innerHTML = '<p>لا يوجد مستخدمين مطابقين.</p>';
+            return;
+        }
+
+        const { data: { session } } = await client.auth.getSession();
+        const currentUserId = session?.user?.id;
+
+        usersList.forEach((user) => {
+            const card = createUserCard(user, client, currentUserId);
+            container.appendChild(card);
+        });
     }
 
     function createUserCard(user, client, currentUserId) {
