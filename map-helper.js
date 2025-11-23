@@ -18,10 +18,19 @@
         const container = document.getElementById(containerId);
         if (!container) return;
 
+        // Force CSS styles to ensure visibility
+        container.style.height = '400px';
+        container.style.width = '100%';
+        container.style.position = 'relative';
+        container.style.zIndex = '1';
+        container.style.display = 'block';
+
         map = L.map(containerId).setView([initialLat, initialLng], 13);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
+        // Use a more reliable tile server (CartoDB Voyager is often faster/more reliable)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
             maxZoom: 19
         }).addTo(map);
 
