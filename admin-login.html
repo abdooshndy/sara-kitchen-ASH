@@ -1,64 +1,59 @@
 <!-- admin-login.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <title>دخول الأدمن - مطبخ سارة</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  </head>
-  <body data-page="admin-login">
-    <header class="header">
-      <div class="header-inner">
-        <div class="header-logo">مطبخ سارة</div>
-        <nav class="header-nav">
-          <a href="index.html" class="header-link">الرئيسية</a>
-          <a href="admin-login.html" class="header-link header-link--primary"
-            >دخول الأدمن</a
-          >
-        </nav>
-      </div>
-    </header>
 
-    <main class="main-container">
-      <section class="section" style="max-width: 420px">
-        <h1 class="page-title">دخول الأدمن</h1>
-        <form id="admin-login-form">
-          <div style="display: flex; flex-direction: column; gap: 0.75rem">
-            <div>
-              <label class="label" for="admin-email">الإيميل</label>
-              <input
-                id="admin-email"
-                type="email"
-                class="input"
-                placeholder="admin@sarakitchen.com"
-              />
-            </div>
-            <div>
-              <label class="label" for="admin-password">كلمة المرور</label>
-              <input id="admin-password" type="password" class="input" />
-            </div>
-            <button type="submit" class="btn btn-primary">دخول</button>
+<head>
+  <meta charset="UTF-8" />
+  <title>دخول الأدمن - مطبخ سارة</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="mobile.css" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+</head>
+
+<body data-page="admin-login">
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-logo">مطبخ سارة</div>
+      <nav class="header-nav">
+        <a href="index.html" class="header-link">الرئيسية</a>
+        <a href="admin-login.html" class="header-link header-link--primary">دخول الأدمن</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <section class="section" style="max-width: 420px">
+      <h1 class="page-title">دخول الأدمن</h1>
+      <form id="admin-login-form">
+        <div style="display: flex; flex-direction: column; gap: 0.75rem">
+          <div>
+            <label class="label" for="admin-email">الإيميل</label>
+            <input id="admin-email" type="email" class="input" placeholder="admin@sarakitchen.com" />
           </div>
-        </form>
-        <p
-          id="admin-login-error"
-          style="color: darkred; font-size: 0.85rem; margin-top: 0.5rem"
-        ></p>
-      </section>
-    </main>
+          <div>
+            <label class="label" for="admin-password">كلمة المرور</label>
+            <input id="admin-password" type="password" class="input" />
+          </div>
+          <button type="submit" class="btn btn-primary">دخول</button>
+        </div>
+      </form>
+      <p id="admin-login-error" style="color: darkred; font-size: 0.85rem; margin-top: 0.5rem"></p>
+    </section>
+  </main>
 
-    <footer class="footer">
-      <div class="footer-inner">
-        <div>© 2025 مطبخ سارة</div>
-        <div>لوحة تحكم الإدارة</div>
-      </div>
-    </footer>
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>© 2025 مطبخ سارة</div>
+      <div>لوحة تحكم الإدارة</div>
+    </div>
+  </footer>
 
-    <!-- مكتبة Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js"></script>
-    <script src="toast.js"></script>
-    <script src="admin.js"></script>
-  </body>
+  <!-- مكتبة Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="toast.js"></script>
+  <script src="mobile-detect.js"></script>
+  <script src="admin.js"></script>
+</body>
+
 </html>
