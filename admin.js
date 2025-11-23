@@ -249,9 +249,10 @@
                 return;
             }
 
-            // تنظيف البيانات
+            // تنظيف البيانات (تحويل النصوص القديمة لكائنات وتعيين دور افتراضي)
             let chatIds = setting.value.chatIds.map(c => {
                 if (typeof c === 'string') return { id: c, name: 'مستخدم', role: 'admin' };
+                if (!c.role) c.role = 'admin'; // تعيين افتراضي إذا كان مفقوداً
                 return c;
             });
 
