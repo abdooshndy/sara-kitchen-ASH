@@ -7,6 +7,9 @@
   <title>السلة - مطبخ سارة للأكل البيتي</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <!-- Leaflet CSS for interactive maps -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 </head>
 
 <body data-page="cart">
@@ -150,6 +153,13 @@
             <label for="cart-customer-address">العنوان بالتفصيل</label>
             <textarea id="cart-customer-address" class="cart-input" rows="2"
               placeholder="المنطقة، الشارع، رقم العمارة، رقم الشقة..."></textarea>
+            <!-- زر تحديد الموقع على الخريطة -->
+            <button type="button" id="open-map-btn" class="btn btn-outline" style="margin-top: 0.5rem;">
+              📍 تحديد الموقع على الخريطة
+            </button>
+            <small id="location-status" style="color: #27ae60; display: none; margin-top: 0.25rem;">
+              ✅ تم تحديد الموقع بنجاح
+            </small>
           </div>
 
           <div class="cart-input-group">
@@ -165,6 +175,33 @@
     </section>
   </main>
 
+  <!-- Map Modal -->
+  <div id="map-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 800px; width: 90%;">
+      <button class="modal-close" id="close-map-modal-btn">&times;</button>
+      <h2 class="modal-title">حدد موقع التوصيل الدقيق 📍</h2>
+      <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+        حرّك الدبوس 📌 على الخريطة للمكان الدقيق أو اكتب العنوان للبحث
+      </p>
+
+      <!-- Search box -->
+      <div style="margin-bottom: 1rem;">
+        <input type="text" id="map-search-input" class="cart-input" placeholder="ابحث عن العنوان...">
+        <button id="map-search-btn" class="btn btn-outline" style="margin-top: 0.5rem;">
+          🔍 بحث
+        </button>
+      </div>
+
+      <!-- Map container -->
+      <div id="map-container" style="height: 400px; width: 100%; border-radius: 8px; margin-bottom: 1rem;"></div>
+
+      <!-- Confirm button -->
+      <button id="confirm-location-btn" class="btn btn-primary" style="width: 100%;">
+        ✅ تأكيد الموقع
+      </button>
+    </div>
+  </div>
+
   <!-- الفوتر -->
   <footer class="footer">
     <div class="footer-inner">
@@ -172,6 +209,10 @@
       <div>التعامل بالجنيه المصري (ج.م)</div>
     </div>
   </footer>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha384-puJ8QoExKz32aaDWkN4WYnJXPY3VLJXSk3xATRn4hjcJYxHE62vZ6V/ کوی1o1y5v5VhgXB" crossorigin=""></script>
 
   <!-- الترتيب مهم: Supabase ثم config ثم app -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

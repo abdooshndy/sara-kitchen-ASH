@@ -363,10 +363,16 @@
     message += `📱 *الهاتف:* ${order.customer_phone}\n`;
     message += `📍 *العنوان:* ${order.customer_address}\n`;
 
-    // رابط الموقع (Google Maps) لو العنوان يحتوي على رابط، أو مجرد نص
-    if (order.customer_address.includes('http')) {
-      message += `🗺 [فتح الموقع على الخريطة](${order.customer_address})\n`;
+    // رابط Google Maps - استخدام الإحداثيات إن وجدت، وإلا استخدام البحث النصي
+    let mapsUrl;
+    if (order.latitude && order.longitude) {
+      // إحداثيات دقيقة متوفرة
+      mapsUrl = `https://www.google.com/maps/search/?api=1&query=${order.latitude},${order.longitude}`;
+    } else {
+      // استخدام العنوان النصي للبحث
+      mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.customer_address)}`;
     }
+    message += `🗺 [فتح الموقع على خرائط جوجل](${mapsUrl})\n`;
 
     message += `\n💰 *المطلوب تحصيله:* ${formatPrice(order.total_amount)}\n`;
 
@@ -1372,6 +1378,9 @@
         }
       }
 
+      // Get selected location from map
+      const location = window.getSelectedLocation ? window.getSelectedLocation() : null;
+
       const orderInsertPayload = {
         order_code: orderCode,
         user_id: userId,        // للمستخدمين المسجلين
@@ -1381,7 +1390,9 @@
         total_amount: cartState.total,
         notes: notes || null,
         is_asap: isAsap,
-        scheduled_for: scheduledFor
+        scheduled_for: scheduledFor,
+        latitude: location ? location.lat : null,
+        longitude: location ? location.lng : null
       };
 
       const { data: order, error: orderError } = await client
@@ -1683,4 +1694,163 @@
     }
     // لاحقًا: my-orders / admin / driver ...
   });
+
+  // ============================================================
+  // 12. Interactive Map Location Feature (Leaflet + OpenStreetMap)
+  // ============================================================
+  let map = null;
+  let marker = null;
+  let selectedLocation = null; // {lat, lng}
+
+  // Initialize map when modal opens
+  function initializeMap(initialLat = 30.0444, initialLng = 31.2357) { // Cairo default
+    if (!map) {
+      map = L.map('map-container').setView([initialLat, initialLng], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(map);
+
+      // Add draggable marker
+      marker = L.marker([initialLat, initialLng], {
+        draggable: true
+      }).addTo(map);
+
+      // Update location when marker is dragged
+      marker.on('dragend', function () {
+        const position = marker.getLatLng();
+        selectedLocation = {
+          lat: position.lat,
+          lng: position.lng
+        };
+        console.log('Location updated:', selectedLocation);
+      });
+    } else {
+      // Map already exists, just refresh
+      setTimeout(() => map.invalidateSize(), 100);
+    }
+  }
+
+  // Geocode address to coordinates using Nominatim API
+  async function geocodeAddress(address) {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?` +
+        `q=${encodeURIComponent(address)}&` +
+        `format=json&limit=1&` +
+        `accept-language=ar`
+      );
+
+      const data = await response.json();
+
+      if (data && data.length > 0) {
+        return {
+          lat: parseFloat(data[0].lat),
+          lng: parseFloat(data[0].lon)
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Geocoding error:', error);
+      return null;
+    }
+  }
+
+  // Setup map modal interactions
+  if (document.getElementById('open-map-btn')) {
+    const openMapBtn = document.getElementById('open-map-btn');
+    const mapModal = document.getElementById('map-modal');
+    const closeMapBtn = document.getElementById('close-map-modal-btn');
+    const searchBtn = document.getElementById('map-search-btn');
+    const searchInput = document.getElementById('map-search-input');
+    const confirmBtn = document.getElementById('confirm-location-btn');
+    const addressTextarea = document.getElementById('cart-customer-address');
+    const locationStatus = document.getElementById('location-status');
+
+    // Open map modal
+    openMapBtn.addEventListener('click', async () => {
+      const address = addressTextarea.value.trim();
+
+      mapModal.style.display = 'flex';
+
+      // Try to geocode the address if provided
+      if (address) {
+        searchInput.value = address;
+        const location = await geocodeAddress(address);
+
+        if (location) {
+          initializeMap(location.lat, location.lng);
+          if (marker) {
+            marker.setLatLng([location.lat, location.lng]);
+            map.setView([location.lat, location.lng], 15);
+          }
+          selectedLocation = { lat: location.lat, lng: location.lng };
+        } else {
+          initializeMap(); // Default Cairo location
+        }
+      } else {
+        initializeMap(); // Default Cairo location
+      }
+    });
+
+    // Close modal
+    closeMapBtn.addEventListener('click', () => {
+      mapModal.style.display = 'none';
+    });
+
+    // Close on overlay click
+    mapModal.addEventListener('click', (e) => {
+      if (e.target === mapModal) {
+        mapModal.style.display = 'none';
+      }
+    });
+
+    // Search functionality
+    searchBtn.addEventListener('click', async () => {
+      const query = searchInput.value.trim();
+      if (!query) {
+        showToast('الرجاء إدخال عنوان للبحث', 'error');
+        return;
+      }
+
+      searchBtn.disabled = true;
+      searchBtn.textContent = 'جاري البحث...';
+
+      const location = await geocodeAddress(query);
+
+      if (location) {
+        if (marker) {
+          marker.setLatLng([location.lat, location.lng]);
+          map.setView([location.lat, location.lng], 15);
+        }
+        selectedLocation = { lat: location.lat, lng: location.lng };
+        showToast('تم العثور على الموقع!', 'success');
+      } else {
+        showToast('لم يتم العثور على الموقع. حاول عنوان آخر.', 'error');
+      }
+
+      searchBtn.disabled = false;
+      searchBtn.textContent = '🔍 بحث';
+    });
+
+    // Confirm location
+    confirmBtn.addEventListener('click', () => {
+      if (selectedLocation) {
+        // Show success message
+        locationStatus.style.display = 'block';
+        showToast('تم تحديد الموقع بنجاح! ✅', 'success');
+
+        // Close modal
+        mapModal.style.display = 'none';
+      } else {
+        showToast('الرجاء تحديد موقع على الخريطة', 'error');
+      }
+    });
+  }
+
+  // Export selectedLocation for use in order placement
+  window.getSelectedLocation = () => selectedLocation;
+
 })();
