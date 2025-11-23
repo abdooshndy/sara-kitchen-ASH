@@ -131,12 +131,21 @@
         const checkBtn = document.getElementById("check-telegram-updates-btn");
         const tokenInput = document.getElementById("telegram-bot-token-check");
         const resultContainer = document.getElementById("telegram-ids-result");
+        const savedContainer = document.createElement("div");
+        savedContainer.id = "saved-telegram-chats";
+        savedContainer.style.marginTop = "1.5rem";
+        savedContainer.style.borderTop = "1px solid #eee";
+        savedContainer.style.paddingTop = "1rem";
 
         if (!checkBtn || !tokenInput || !resultContainer) return;
+
+        // إضافة حاوية القائمة المحفوظة
+        resultContainer.parentNode.appendChild(savedContainer);
 
         // محاولة تعبئة التوكن من الكونفيج لو موجود
         if (CONFIG.telegram && CONFIG.telegram.botToken && CONFIG.telegram.botToken !== "YOUR_BOT_TOKEN_HERE") {
             tokenInput.value = CONFIG.telegram.botToken;
+            loadSavedChats(savedContainer); // تحميل القائمة المحفوظة عند البدء
         }
 
         checkBtn.addEventListener("click", async () => {
@@ -149,6 +158,8 @@
             checkBtn.disabled = true;
             checkBtn.textContent = "جاري البحث...";
             resultContainer.innerHTML = '<p class="loading">جاري الاتصال بتيليجرام...</p>';
+            resultContainer.style.maxHeight = "200px"; // تصغير المربع
+            resultContainer.style.overflowY = "auto";
 
             try {
                 const response = await fetch(`https://api.telegram.org/bot${token}/getUpdates`);
@@ -162,7 +173,7 @@
                 if (!updates || !updates.length) {
                     resultContainer.innerHTML = '<p style="color: orange;">لا توجد رسائل جديدة. تأكد من إرسال رسالة للبوت أولاً.</p>';
                     checkBtn.disabled = false;
-                    checkBtn.textContent = "جلب المعرفات (Get Chat IDs)";
+                    checkBtn.textContent = "جلب المعرفات";
                     return;
                 }
 
@@ -182,17 +193,17 @@
                 if (chats.size === 0) {
                     resultContainer.innerHTML = '<p>لم يتم العثور على محادثات.</p>';
                 } else {
-                    let html = '<table class="admin-table" style="width:100%; margin-top:10px;">';
-                    html += '<thead><tr><th>الاسم</th><th>المعرف (Chat ID)</th><th>حفظ تلقائي</th></tr></thead><tbody>';
+                    let html = '<table class="admin-table" style="width:100%; font-size:0.9rem;">';
+                    html += '<thead><tr><th>الاسم</th><th>ID</th><th>إجراء</th></tr></thead><tbody>';
 
                     chats.forEach(chat => {
                         html += `
                             <tr>
-                                <td>${chat.name} <br><small style="color:#888">${chat.username}</small></td>
-                                <td style="font-family:monospace; font-weight:bold;">${chat.id}</td>
+                                <td>${chat.name}</td>
+                                <td style="font-family:monospace;">${chat.id}</td>
                                 <td>
-                                    <button class="btn btn-sm btn-primary save-chat-btn" data-id="${chat.id}" data-name="${chat.name}">
-                                        حفظ للإشعارات
+                                    <button class="btn btn-sm btn-primary save-chat-btn" data-id="${chat.id}" data-name="${chat.name}" style="padding: 2px 8px; font-size: 0.8rem;">
+                                        حفظ
                                     </button>
                                 </td>
                             </tr>
@@ -200,8 +211,6 @@
                     });
 
                     html += '</tbody></table>';
-                    html += '<p style="margin-top:10px; font-size:0.9rem; color:#27ae60;">✅ اضغط "حفظ للإشعارات" لإضافة هذا الشخص لقائمة المستقبلين تلقائياً.</p>';
-
                     resultContainer.innerHTML = html;
 
                     // تفعيل أزرار الحفظ التلقائي
@@ -210,6 +219,7 @@
                             const chatId = btn.dataset.id;
                             const chatName = btn.dataset.name;
                             await saveTelegramChatId(chatId, chatName, btn);
+                            loadSavedChats(savedContainer); // تحديث القائمة المحفوظة
                         });
                     });
                 }
@@ -219,9 +229,84 @@
                 resultContainer.innerHTML = `<p class="error">حدث خطأ: ${err.message}</p>`;
             } finally {
                 checkBtn.disabled = false;
-                checkBtn.textContent = "جلب المعرفات (Get Chat IDs)";
+                checkBtn.textContent = "جلب المعرفات";
             }
         });
+    }
+
+    async function loadSavedChats(container) {
+        container.innerHTML = '<p class="loading">جاري تحميل القائمة المحفوظة...</p>';
+        try {
+            const client = initSupabase();
+            const { data: setting } = await client
+                .from('system_settings')
+                .select('value')
+                .eq('key', 'telegram_config')
+                .single();
+
+            if (!setting || !setting.value || !setting.value.chatIds || !setting.value.chatIds.length) {
+                container.innerHTML = '<p style="color:#666; font-size:0.9rem;">لا توجد معرفات محفوظة حالياً.</p>';
+                return;
+            }
+
+            const chatIds = setting.value.chatIds;
+            let html = '<h4 style="margin-bottom:0.5rem; font-size:1rem;">المعرفات المحفوظة (يتم الإرسال لها):</h4>';
+            html += '<ul style="list-style:none; padding:0;">';
+
+            chatIds.forEach(id => {
+                html += `
+                    <li style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:5px 10px; margin-bottom:5px; border:1px solid #eee; border-radius:4px;">
+                        <span style="font-family:monospace; font-weight:bold;">${id}</span>
+                        <button class="btn btn-sm btn-danger delete-chat-btn" data-id="${id}" style="padding: 2px 8px; font-size: 0.8rem;">حذف</button>
+                    </li>
+                `;
+            });
+            html += '</ul>';
+
+            container.innerHTML = html;
+
+            // تفعيل أزرار الحذف
+            container.querySelectorAll('.delete-chat-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    if (confirm("هل أنت متأكد من حذف هذا المعرف؟ لن يتم إرسال إشعارات له بعد الآن.")) {
+                        await deleteTelegramChatId(btn.dataset.id);
+                        loadSavedChats(container);
+                    }
+                });
+            });
+
+        } catch (err) {
+            console.error("Error loading saved chats:", err);
+            container.innerHTML = '<p class="error">فشل تحميل القائمة المحفوظة.</p>';
+        }
+    }
+
+    async function deleteTelegramChatId(chatId) {
+        try {
+            const client = initSupabase();
+            let { data: setting } = await client
+                .from('system_settings')
+                .select('value')
+                .eq('key', 'telegram_config')
+                .single();
+
+            if (!setting) return;
+
+            let config = setting.value;
+            config.chatIds = config.chatIds.filter(id => id !== chatId);
+
+            const { error } = await client
+                .from('system_settings')
+                .update({ value: config, updated_at: new Date().toISOString() })
+                .eq('key', 'telegram_config');
+
+            if (error) throw error;
+            // alert("تم الحذف بنجاح"); // Optional feedback
+
+        } catch (err) {
+            console.error("Error deleting chat ID:", err);
+            alert("حدث خطأ أثناء الحذف.");
+        }
     }
 
     async function saveTelegramChatId(chatId, chatName, btn) {
