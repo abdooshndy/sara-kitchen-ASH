@@ -271,6 +271,7 @@
                                 <option value="cook" ${chat.role === 'cook' ? 'selected' : ''}>طباخ</option>
                                 <option value="driver" ${chat.role === 'driver' ? 'selected' : ''}>سائق</option>
                             </select>
+                            <button class="btn btn-sm btn-outline test-chat-btn" data-id="${chat.id}" data-role="${chat.role}" style="padding: 2px 8px; font-size: 0.8rem;">تجربة 🔔</button>
                             <button class="btn btn-sm btn-danger delete-chat-btn" data-id="${chat.id}" style="padding: 2px 8px; font-size: 0.8rem;">حذف</button>
                         </div>
                     </li>
@@ -287,6 +288,51 @@
                     if (confirm("هل أنت متأكد من حذف هذا المعرف؟")) {
                         await deleteTelegramChatId(btn.dataset.id);
                         loadSavedChats(container);
+                    }
+                });
+            });
+
+            // تفعيل أزرار التجربة
+            container.querySelectorAll('.test-chat-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const chatId = btn.dataset.id;
+                    const role = btn.dataset.role;
+                    btn.disabled = true;
+                    btn.textContent = "جاري الإرسال...";
+
+                    try {
+                        const client = initSupabase();
+                        const { data: setting } = await client.from('system_settings').select('value').eq('key', 'telegram_config').single();
+                        if (!setting || !setting.value || !setting.value.botToken) {
+                            alert("لم يتم العثور على Bot Token.");
+                            return;
+                        }
+
+                        const botToken = setting.value.botToken;
+                        const message = `🔔 *تجربة إشعار*\n\nمرحباً! هذا اختبار للإشعارات.\nالدور الحالي: ${role}`;
+
+                        const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                chat_id: chatId,
+                                text: message,
+                                parse_mode: 'Markdown'
+                            })
+                        });
+
+                        const result = await response.json();
+                        if (result.ok) {
+                            alert("تم إرسال الرسالة بنجاح! ✅");
+                        } else {
+                            alert(`فشل الإرسال: ${result.description}`);
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert(`حدث خطأ: ${err.message}`);
+                    } finally {
+                        btn.disabled = false;
+                        btn.textContent = "تجربة 🔔";
                     }
                 });
             });
