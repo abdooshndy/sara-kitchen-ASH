@@ -166,11 +166,12 @@ ${menuContext}
 `;
 
         // ج. الاتصال بـ Gemini API
-        // مفتاح جديد (تم التحديث)
-        const API_KEY = 'AIzaSyDMgEVfRMEZSXJ90J-NT534R7527c4s9TI';
+        // ج. الاتصال بـ Gemini API
+        // مفتاح جديد (المحاولة الثالثة)
+        const API_KEY = 'AIzaSyAmahTMpOkVX8cVYwx-IRdC4byMJPBsngE';
 
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
             {
                 method: 'POST',
                 headers: {
