@@ -44,9 +44,8 @@
       <button class="tab-btn active" data-target="orders-section"
         style="background: none; border: none; font-size: 1.1rem; font-weight: bold; cursor: pointer; padding: 0.5rem 1rem; border-bottom: 3px solid transparent;">الطلبات</button>
       <button class="tab-btn" data-target="products-section"
-        style="background: none; border: none; font-size: 1.1rem; font-weight: bold; cursor: pointer; padding: 0.5rem 1rem; border-bottom: 3px solid transparent;">المنتجات</button>
-      <button class="tab-btn" data-target="categories-section"
-        style="background: none; border: none; font-size: 1.1rem; font-weight: bold; cursor: pointer; padding: 0.5rem 1rem; border-bottom: 3px solid transparent;">التصنيفات</button>
+        style="background: none; border: none; font-size: 1.1rem; font-weight: bold; cursor: pointer; padding: 0.5rem 1rem; border-bottom: 3px solid transparent;">المنتجات
+        والتصنيفات</button>
     </div>
 
     <!-- Orders Section -->
@@ -57,26 +56,33 @@
       </div>
     </section>
 
-    <!-- Products Section -->
+    <!-- Products & Categories Section -->
     <section id="products-section" class="tab-content" style="display: none;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h2 class="section-title">إدارة المنتجات</h2>
-        <button id="add-product-btn" class="btn btn-primary">➕ إضافة منتج جديد</button>
-      </div>
-      <div id="admin-products-container" class="orders-grid">
-        <!-- سيتم تحميل المنتجات هنا -->
-      </div>
-    </section>
 
-    <!-- Categories Section -->
-    <section id="categories-section" class="tab-content" style="display: none;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h2 class="section-title">إدارة التصنيفات</h2>
-        <button id="add-category-btn" class="btn btn-primary">➕ إضافة تصنيف جديد</button>
+      <!-- Sub Tabs -->
+      <div class="sub-tabs-nav" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+        <button class="sub-tab-btn active btn btn-outline" data-target="sub-products">قائمة المنتجات</button>
+        <button class="sub-tab-btn btn btn-outline" data-target="sub-categories">قائمة التصنيفات</button>
       </div>
-      <div id="admin-categories-container" class="orders-grid">
-        <!-- سيتم تحميل التصنيفات هنا -->
+
+      <!-- Sub Section: Products -->
+      <div id="sub-products" class="sub-tab-content active">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3 class="section-title">المنتجات</h3>
+          <button id="add-product-btn" class="btn btn-primary">➕ إضافة منتج</button>
+        </div>
+        <div id="admin-products-container" class="orders-grid"></div>
       </div>
+
+      <!-- Sub Section: Categories -->
+      <div id="sub-categories" class="sub-tab-content" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3 class="section-title">التصنيفات</h3>
+          <button id="add-category-btn" class="btn btn-primary">➕ إضافة تصنيف</button>
+        </div>
+        <div id="admin-categories-container" class="orders-grid"></div>
+      </div>
+
     </section>
   </main>
 
