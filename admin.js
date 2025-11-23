@@ -329,14 +329,27 @@
             // التأكد من وجود المصفوفة
             if (!config.chatIds) config.chatIds = [];
 
-            // إضافة الـ ID إذا لم يكن موجوداً
-            if (!config.chatIds.includes(chatId)) {
-                config.chatIds.push(chatId);
+            // التحقق مما إذا كان المعرف موجوداً بالفعل
+            const existingIndex = config.chatIds.findIndex(c => c.id === chatId || c === chatId); // دعم التنسيق القديم (string)
+
+            // تحديد الدور (افتراضي: أدمن)
+            // يمكننا تحسين هذا لاحقاً بسؤال المستخدم، لكن حالياً سنفترض 'admin' ونسمح بتغييره من القائمة
+            const role = 'admin';
+
+            if (existingIndex !== -1) {
+                // إذا كان موجوداً، نحدث الاسم فقط (أو نتجاهل)
+                // لكن إذا كان string قديم، نحوله لكائن
+                if (typeof config.chatIds[existingIndex] === 'string') {
+                    config.chatIds[existingIndex] = { id: chatId, name: chatName, role: role };
+                } else {
+                    alert("هذا المستخدم مضاف بالفعل!");
+                    btn.disabled = false;
+                    btn.textContent = "مضاف ✅";
+                    return;
+                }
             } else {
-                alert("هذا المستخدم مضاف بالفعل!");
-                btn.disabled = false;
-                btn.textContent = "مضاف ✅";
-                return;
+                // إضافة جديد
+                config.chatIds.push({ id: chatId, name: chatName, role: role });
             }
 
             // تحديث التوكن أيضاً إذا كان مدخلاً
@@ -356,12 +369,12 @@
 
             if (error) throw error;
 
-            alert(`تم إضافة ${chatName} لقائمة الإشعارات بنجاح! 🎉`);
+            alert(`تم إضافة ${chatName} لقائمة الإشعارات بنجاح! 🎉\nيمكنك تغيير دوره من القائمة المحفوظة.`);
             btn.textContent = "تم الحفظ ✅";
 
         } catch (err) {
             console.error("Error saving chat ID:", err);
-            alert("فشل الحفظ في قاعدة البيانات. تأكد من تشغيل ملف SQL الخاص بجدول system_settings.");
+            alert("فشل الحفظ في قاعدة البيانات.");
             btn.disabled = false;
             btn.textContent = originalText;
         }

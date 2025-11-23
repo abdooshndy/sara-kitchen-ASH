@@ -313,25 +313,91 @@
 
     message += `\n🌍 [عرض الطلب في لوحة التحكم](${window.location.origin}/admin-login.html)`;
 
-    // إرسال لكل Chat ID
-    chatIds.forEach(async (chatId) => {
-      if (chatId === "YOUR_CHAT_ID_HERE") return; // Skip placeholder
-      try {
-        const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-        await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: chatId,
-            text: message,
-            parse_mode: 'Markdown'
-          })
-        });
-      } catch (err) {
-        console.error(`Failed to send Telegram message to ${chatId}:`, err);
+    // إرسال لكل Chat ID حسب الدور
+    chatIds.forEach(async (chat) => {
+      // التحقق من صيغة الـ chat (string قديم أو object جديد)
+      let id = typeof chat === 'string' ? chat : chat.id;
+      let role = typeof chat === 'string' ? 'admin' : (chat.role || 'admin');
+
+      if (id === "YOUR_CHAT_ID_HERE") return;
+
+      // للطلبات الجديدة: نرسل للأدمن والطباخ فقط
+      if (role === 'admin' || role === 'cook') {
+        try {
+          const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+          await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: id,
+              text: message,
+              parse_mode: 'Markdown'
+            })
+          });
+        } catch (err) {
+          console.error(`Failed to send Telegram message to ${id}:`, err);
+        }
       }
     });
   }
+
+  // إرسال إشعار للسائق (عندما يكون الطلب جاهزاً)
+  async function sendDriverNotification(order) {
+    // محاولة جلب الإعدادات
+    let telegramConfig = CONFIG.telegram;
+    try {
+      const client = initSupabaseClient();
+      if (client) {
+        const { data: setting } = await client.from('system_settings').select('value').eq('key', 'telegram_config').single();
+        if (setting && setting.value) telegramConfig = setting.value;
+      }
+    } catch (e) { }
+
+    if (!telegramConfig || !telegramConfig.botToken || !telegramConfig.chatIds) return;
+
+    const { botToken, chatIds } = telegramConfig;
+
+    // تجهيز الرسالة
+    let message = `🚗 *طلب جاهز للتوصيل!* (#${order.order_code})\n\n`;
+    message += `👤 *العميل:* ${order.customer_name}\n`;
+    message += `📱 *الهاتف:* ${order.customer_phone}\n`;
+    message += `📍 *العنوان:* ${order.customer_address}\n`;
+
+    // رابط الموقع (Google Maps) لو العنوان يحتوي على رابط، أو مجرد نص
+    if (order.customer_address.includes('http')) {
+      message += `🗺 [فتح الموقع على الخريطة](${order.customer_address})\n`;
+    }
+
+    message += `\n💰 *المطلوب تحصيله:* ${formatPrice(order.total_amount)}\n`;
+
+    if (order.notes) message += `📝 *ملاحظات:* ${order.notes}\n`;
+
+    message += `\n✅ الرجاء تأكيد الاستلام من المطبخ.`;
+
+    // إرسال للسائقين فقط
+    chatIds.forEach(async (chat) => {
+      let id = typeof chat === 'string' ? chat : chat.id;
+      let role = typeof chat === 'string' ? 'admin' : (chat.role || 'admin');
+
+      if (role === 'driver' || role === 'admin') { // نرسل للأدمن أيضاً للمتابعة
+        try {
+          await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: id,
+              text: message,
+              parse_mode: 'Markdown'
+            })
+          });
+        } catch (err) { console.error(err); }
+      }
+    });
+  }
+
+  // تصدير الدوال لتكون متاحة عالمياً
+  window.sendTelegramNotification = sendTelegramNotification;
+  window.sendDriverNotification = sendDriverNotification;
 
   // ============================
   // 3) منطق صفحة المنيو
