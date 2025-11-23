@@ -47,22 +47,25 @@
     const input = document.getElementById('ai-chat-input');
     const messagesContainer = document.getElementById('ai-chat-messages');
 
-    // فتح/إغلاق
-    function toggleChat() {
+    // فتح/إغلاق (Global Access)
+    window.toggleAIChat = function () {
         windowEl.classList.toggle('open');
         if (windowEl.classList.contains('open')) {
             input.focus();
         }
-    }
+    };
 
-    trigger.addEventListener('click', toggleChat);
-    closeBtn.addEventListener('click', toggleChat);
+    trigger.addEventListener('click', window.toggleAIChat);
+    closeBtn.addEventListener('click', window.toggleAIChat);
 
-    // إرسال الرسالة
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const text = input.value.trim();
+    // دالة إرسال رسالة (Global Access)
+    window.sendAIMessage = async function (text) {
         if (!text) return;
+
+        // فتح الشات لو مقفول
+        if (!windowEl.classList.contains('open')) {
+            window.toggleAIChat();
+        }
 
         // إضافة رسالة المستخدم
         addMessage(text, 'user');
@@ -83,6 +86,13 @@
             removeMessage(typingId);
             addMessage("عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.", 'bot');
         }
+    };
+
+    // إرسال الرسالة من الفورم
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const text = input.value.trim();
+        await window.sendAIMessage(text);
     });
 
     function addMessage(text, sender) {

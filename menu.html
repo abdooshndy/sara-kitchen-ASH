@@ -51,8 +51,7 @@
 
         <!-- زر المساعد الذكي -->
         <div class="ai-help-container">
-          <button id="ai-help-btn" class="ai-help-btn"
-            onclick="document.querySelector('.ai-chat-window').classList.add('active'); document.querySelector('.ai-chat-window').style.transform = 'scale(1)'; document.querySelector('.ai-chat-window').style.opacity = '1';">
+          <button id="ai-help-btn" class="ai-help-btn" onclick="window.toggleAIChat()">
             <span class="ai-icon">🤖</span> محتار تطلب إيه؟ اسأل الشيف سارة
           </button>
         </div>
@@ -197,6 +196,31 @@
 
   <!-- مكتبة Supabase من الـ CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- سكربت ربط السايدبار بالمساعد الذكي -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const sidebarSubmitBtn = document.getElementById('ai-assistant-submit');
+      const sidebarInput = document.getElementById('ai-assistant-input');
+
+      if (sidebarSubmitBtn && sidebarInput) {
+        sidebarSubmitBtn.addEventListener('click', () => {
+          const text = sidebarInput.value.trim();
+          if (text) {
+            // استخدام الدالة العامة التي أنشأناها في ai-chat.js
+            if (window.sendAIMessage) {
+              window.sendAIMessage(text);
+              sidebarInput.value = ''; // مسح الحقل بعد الإرسال
+            } else {
+              alert('جاري تحميل المساعد الذكي... يرجى الانتظار لحظة.');
+            }
+          } else {
+            alert('من فضلك اكتب تفاصيل طلبك أولاً.');
+          }
+        });
+      }
+    });
+  </script>
 
   <!-- ملف التهيئة -->
   <!-- سكربت Supabase -->
