@@ -1079,8 +1079,12 @@
 
         // تحميل التصنيفات ديناميكياً
         try {
-            const { data: categories } = await client.from("categories").select("name");
-            categorySelect.innerHTML = "";
+            const { data: categories, error } = await client.from("categories").select("name");
+
+            if (error) throw error;
+
+            categorySelect.innerHTML = '<option value="">-- اختر التصنيف --</option>';
+
             if (categories && categories.length) {
                 categories.forEach(cat => {
                     const option = document.createElement("option");
@@ -1090,11 +1094,13 @@
                 });
             } else {
                 const option = document.createElement("option");
-                option.textContent = "لا توجد تصنيفات";
+                option.value = "";
+                option.textContent = "لا توجد تصنيفات (أضف تصنيفاً أولاً)";
                 categorySelect.appendChild(option);
             }
         } catch (err) {
             console.error("Error loading categories for modal", err);
+            categorySelect.innerHTML = '<option value="">فشل تحميل التصنيفات</option>';
         }
 
         document.getElementById("product-id").value = product ? product.id : "";
