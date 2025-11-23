@@ -249,31 +249,90 @@
                 return;
             }
 
-            const chatIds = setting.value.chatIds;
-            let html = '<h4 style="margin-bottom:0.5rem; font-size:1rem;">المعرفات المحفوظة (يتم الإرسال لها):</h4>';
+            // تنظيف البيانات
+            let chatIds = setting.value.chatIds.map(c => {
+                if (typeof c === 'string') return { id: c, name: 'مستخدم', role: 'admin' };
+                return c;
+            });
+
+            let html = '<h4 style="margin-bottom:0.5rem; font-size:1rem;">المعرفات المحفوظة:</h4>';
             html += '<ul style="list-style:none; padding:0;">';
 
-            chatIds.forEach(id => {
+            chatIds.forEach((chat, index) => {
                 html += `
-                    <li style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:5px 10px; margin-bottom:5px; border:1px solid #eee; border-radius:4px;">
-                        <span style="font-family:monospace; font-weight:bold;">${id}</span>
-                        <button class="btn btn-sm btn-danger delete-chat-btn" data-id="${id}" style="padding: 2px 8px; font-size: 0.8rem;">حذف</button>
+                    <li style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; background:#fff; padding:8px 10px; margin-bottom:5px; border:1px solid #eee; border-radius:4px;">
+                        <div style="margin-bottom:5px;">
+                            <strong>${chat.name}</strong> <span style="font-family:monospace; color:#666; font-size:0.85rem;">(${chat.id})</span>
+                        </div>
+                        <div style="display:flex; gap:5px; align-items:center;">
+                            <select class="form-input role-select" data-index="${index}" style="padding:2px 5px; font-size:0.85rem; width:auto;">
+                                <option value="admin" ${chat.role === 'admin' ? 'selected' : ''}>أدمن</option>
+                                <option value="cook" ${chat.role === 'cook' ? 'selected' : ''}>طباخ</option>
+                                <option value="driver" ${chat.role === 'driver' ? 'selected' : ''}>سائق</option>
+                            </select>
+                            <button class="btn btn-sm btn-danger delete-chat-btn" data-id="${chat.id}" style="padding: 2px 8px; font-size: 0.8rem;">حذف</button>
+                        </div>
                     </li>
                 `;
             });
             html += '</ul>';
+            html += '<button id="save-roles-btn" class="btn btn-primary btn-sm" style="margin-top:10px; width:100%;">حفظ التغييرات</button>';
 
             container.innerHTML = html;
 
             // تفعيل أزرار الحذف
             container.querySelectorAll('.delete-chat-btn').forEach(btn => {
                 btn.addEventListener('click', async () => {
-                    if (confirm("هل أنت متأكد من حذف هذا المعرف؟ لن يتم إرسال إشعارات له بعد الآن.")) {
+                    if (confirm("هل أنت متأكد من حذف هذا المعرف؟")) {
                         await deleteTelegramChatId(btn.dataset.id);
                         loadSavedChats(container);
                     }
                 });
             });
+
+            // تفعيل زر حفظ الأدوار
+            const saveRolesBtn = document.getElementById('save-roles-btn');
+            if (saveRolesBtn) {
+                saveRolesBtn.addEventListener('click', async () => {
+                    saveRolesBtn.disabled = true;
+                    saveRolesBtn.textContent = "جاري التحديث...";
+
+                    const selects = container.querySelectorAll('.role-select');
+                    // نعيد قراءة الإعدادات لضمان عدم الكتابة على بيانات قديمة
+                    // لكن للتبسيط سنستخدم النسخة المحلية المعدلة
+                    const newChatIds = JSON.parse(JSON.stringify(chatIds)); // Deep copy
+
+                    selects.forEach(sel => {
+                        const idx = parseInt(sel.dataset.index);
+                        if (newChatIds[idx]) {
+                            newChatIds[idx].role = sel.value;
+                        }
+                    });
+
+                    try {
+                        const client = initSupabase();
+                        // نحتاج لجلب الإعدادات الحالية مرة أخرى لتحديثها
+                        let { data: currentSetting } = await client.from('system_settings').select('value').eq('key', 'telegram_config').single();
+                        let config = currentSetting ? currentSetting.value : { botToken: "", chatIds: [] };
+
+                        config.chatIds = newChatIds;
+
+                        const { error } = await client
+                            .from('system_settings')
+                            .update({ value: config, updated_at: new Date().toISOString() })
+                            .eq('key', 'telegram_config');
+
+                        if (error) throw error;
+                        alert("تم تحديث الصلاحيات بنجاح! ✅");
+                    } catch (err) {
+                        console.error(err);
+                        alert(`حدث خطأ أثناء التحديث: ${err.message || err}`);
+                    } finally {
+                        saveRolesBtn.disabled = false;
+                        saveRolesBtn.textContent = "حفظ التغييرات";
+                    }
+                });
+            }
 
         } catch (err) {
             console.error("Error loading saved chats:", err);
@@ -293,7 +352,13 @@
             if (!setting) return;
 
             let config = setting.value;
-            config.chatIds = config.chatIds.filter(id => id !== chatId);
+            if (!config.chatIds) return;
+
+            // تصفية المصفوفة
+            config.chatIds = config.chatIds.filter(c => {
+                if (typeof c === 'string') return String(c) !== String(chatId);
+                return String(c.id) !== String(chatId);
+            });
 
             const { error } = await client
                 .from('system_settings')
@@ -301,11 +366,10 @@
                 .eq('key', 'telegram_config');
 
             if (error) throw error;
-            // alert("تم الحذف بنجاح"); // Optional feedback
 
         } catch (err) {
             console.error("Error deleting chat ID:", err);
-            alert("حدث خطأ أثناء الحذف.");
+            alert(`حدث خطأ أثناء الحذف: ${err.message || err}`);
         }
     }
 
