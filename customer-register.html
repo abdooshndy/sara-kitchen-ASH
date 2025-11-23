@@ -6,6 +6,9 @@
     <title>تسجيل حساب جديد - مطبخ سارة</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 </head>
 
 <body class="auth-body">
@@ -37,6 +40,12 @@
                 <div class="form-group">
                     <label for="reg-address">العنوان الافتراضي (اختياري)</label>
                     <textarea id="reg-address" class="form-input" rows="2" placeholder="العنوان بالتفصيل..."></textarea>
+                    <button type="button" id="reg-open-map-btn" class="btn btn-outline" style="margin-top: 0.5rem;">
+                        📍 تحديد الموقع على الخريطة
+                    </button>
+                    <small id="reg-location-status" style="color: #27ae60; display: none; margin-top: 0.25rem;">
+                        ✅ تم تحديد الموقع بنجاح
+                    </small>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-block btn-lg">إنشاء الحساب</button>
@@ -49,11 +58,58 @@
         </div>
     </div>
 
+    <!-- Map Modal -->
+    <div id="reg-map-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 800px; width: 90%;">
+            <button class="modal-close" id="reg-close-map-btn">&times;</button>
+            <h2 class="modal-title">حدد موقعك الافتراضي 📍</h2>
+            <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+                حرّك الدبوس 📌 على الخريطة للمكان الدقيق
+            </p>
+
+            <div style="margin-bottom: 1rem;">
+                <input type="text" id="reg-map-search-input" class="form-input" placeholder="ابحث عن العنوان...">
+                <button id="reg-map-search-btn" class="btn btn-outline" style="margin-top: 0.5rem;">
+                    🔍 بحث
+                </button>
+            </div>
+
+            <div id="reg-map-container" style="height: 400px; width: 100%; border-radius: 8px; margin-bottom: 1rem;">
+            </div>
+
+            <button id="reg-confirm-location-btn" class="btn btn-primary" style="width: 100%;">
+                ✅ تأكيد الموقع
+            </button>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha384-puJ8QoExKz32aaDWkN4WYnJXPY3VLJXSk3xATRn4hjcJYxHE62vZ6V/کوی1o1y5v5VhgXB"
+        crossorigin=""></script>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
-    <script src="utils.js"></script>
     <script src="toast.js"></script>
+    <script src="map-helper.js"></script>
     <script src="auth-customer.js"></script>
+
+    <!-- Initialize map for registration -->
+    <script>
+        if (typeof MapHelper !== 'undefined') {
+            MapHelper.setupMapModal({
+                openButtonId: 'reg-open-map-btn',
+                modalId: 'reg-map-modal',
+                closeButtonId: 'reg-close-map-btn',
+                searchButtonId: 'reg-map-search-btn',
+                searchInputId: 'reg-map-search-input',
+                confirmButtonId: 'reg-confirm-location-btn',
+                addressFieldId: 'reg-address',
+                statusElementId: 'reg-location-status',
+                mapContainerId: 'reg-map-container'
+            });
+        }
+    </script>
 </body>
 
 </html>
