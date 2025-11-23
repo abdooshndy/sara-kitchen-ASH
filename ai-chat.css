@@ -3,8 +3,8 @@
 /* الزر العائم */
 #ai-chat-toggle-btn {
     position: fixed;
-    bottom: 140px;
-    /* رفع الزر لأعلى بعيداً عن القائمة السفلية */
+    bottom: 280px;
+    /* رفع كبير بعيداً عن القائمة */
     left: 20px;
     width: 60px;
     height: 60px;
