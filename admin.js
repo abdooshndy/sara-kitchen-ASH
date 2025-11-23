@@ -836,10 +836,14 @@
 
             // إرسال إشعار للسائق إذا أصبحت الحالة "مع المندوب"
             if (newStatus === "WITH_DRIVER") {
+                console.log("Status changed to WITH_DRIVER. Fetching full order details...");
                 // نحتاج تفاصيل الطلب كاملة
                 const { data: fullOrder } = await client.from('orders').select('*').eq('id', orderId).single();
                 if (fullOrder) {
+                    console.log("Full order fetched:", fullOrder);
                     await sendDriverNotification(fullOrder);
+                } else {
+                    console.error("Failed to fetch full order details.");
                 }
             }
 
@@ -857,6 +861,7 @@
     }
 
     async function sendDriverNotification(order) {
+        console.log("Starting sendDriverNotification for order:", order.id);
         // محاولة جلب الإعدادات
         let telegramConfig = CONFIG.telegram;
         try {
@@ -865,11 +870,15 @@
                 const { data: setting } = await client.from('system_settings').select('value').eq('key', 'telegram_config').single();
                 if (setting && setting.value) telegramConfig = setting.value;
             }
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Error fetching config:", e); }
 
-        if (!telegramConfig || !telegramConfig.botToken || !telegramConfig.chatIds) return;
+        if (!telegramConfig || !telegramConfig.botToken || !telegramConfig.chatIds) {
+            console.error("Missing Telegram config:", telegramConfig);
+            return;
+        }
 
         const { botToken, chatIds } = telegramConfig;
+        console.log("Loaded Chat IDs:", chatIds);
 
         // تجهيز الرسالة
         let message = `🚗 *طلب جاهز للتوصيل!* (#${order.order_code})\n\n`;
@@ -894,9 +903,12 @@
                 let id = typeof chat === 'string' ? chat : chat.id;
                 let role = typeof chat === 'string' ? 'admin' : (chat.role || 'admin');
 
+                console.log(`Checking chat ${id} with role ${role}`);
+
                 if (role === 'driver' || role === 'admin') {
+                    console.log(`Sending to ${role} (${id})...`);
                     try {
-                        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                        const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -905,7 +917,11 @@
                                 parse_mode: 'Markdown'
                             })
                         });
+                        const json = await res.json();
+                        console.log(`Send result for ${id}:`, json);
                     } catch (err) { console.error(`Failed to send to ${id}`, err); }
+                } else {
+                    console.log(`Skipping ${id} (Role: ${role})`);
                 }
             });
         }
