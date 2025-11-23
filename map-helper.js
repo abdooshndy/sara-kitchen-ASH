@@ -35,8 +35,12 @@
             if (marker) {
                 marker.setLatLng([initialLat, initialLng]);
             }
-            setTimeout(() => map.invalidateSize(), 100);
         }
+
+        // Force map resize calculation to ensure visibility in modal
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 200);
 
         // Set initial selected location
         selectedLocation = { lat: initialLat, lng: initialLng };
