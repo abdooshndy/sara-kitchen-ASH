@@ -1,0 +1,39 @@
+/* تنسيق زر المساعد الذكي في المنيو */
+.ai-help-container {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.ai-help-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ai-help-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4);
+}
+
+.ai-help-btn .ai-icon {
+    font-size: 1.5rem;
+}
+
+/* تحسين استجابة الموبايل */
+@media (max-width: 768px) {
+    .ai-help-btn {
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
+    }
+}

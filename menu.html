@@ -7,6 +7,7 @@
   <title>القائمة - مطبخ سارة للأكل البيتي</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="mobile.css" />
+  <link rel="stylesheet" href="ai-menu-btn.css" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 </head>
 
@@ -46,6 +47,14 @@
         <div class="menu-search">
           <input type="search" id="menu-search-input" class="menu-search-input"
             placeholder="ابحث عن صنف أو عرض (مثال: محشي، فراخ، عرض المحشي)..." />
+        </div>
+
+        <!-- زر المساعد الذكي -->
+        <div class="ai-help-container">
+          <button id="ai-help-btn" class="ai-help-btn"
+            onclick="document.querySelector('.ai-chat-window').classList.add('active'); document.querySelector('.ai-chat-window').style.transform = 'scale(1)'; document.querySelector('.ai-chat-window').style.opacity = '1';">
+            <span class="ai-icon">🤖</span> محتار تطلب إيه؟ اسأل الشيف سارة
+          </button>
         </div>
       </div>
 
