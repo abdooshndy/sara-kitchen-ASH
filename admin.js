@@ -76,7 +76,7 @@
             errorEl.textContent = "";
 
             const client = initSupabase();
-            const { error } = await client.auth.signInWithPassword({ email, password });
+            const { data: authData, error } = await client.auth.signInWithPassword({ email, password });
 
             if (error) {
                 console.error("Login error:", error);
@@ -84,7 +84,32 @@
                 btn.disabled = false;
                 btn.textContent = "دخول";
             } else {
-                showToast("تم تسجيل الدخول بنجاح", "success");
+                // جلب دور المستخدم وتوجيهه للصفحة المناسبة
+                const { data: profile } = await client
+                    .from("profiles")
+                    .select("role")
+                    .eq("id", authData.user.id)
+                    .single();
+
+                if (profile) {
+                    showToast("تم تسجيل الدخول بنجاح", "success");
+
+                    // توجيه حسب الدور
+                    if (profile.role === "admin") {
+                        window.location.href = "admin-dashboard.html";
+                    } else if (profile.role === "cook") {
+                        window.location.href = "kitchen.html";
+                    } else if (profile.role === "driver") {
+                        window.location.href = "driver.html";
+                    } else {
+                        // العميل
+                        window.location.href = "index.html";
+                    }
+                } else {
+                    errorEl.textContent = "فشل تحميل بيانات المستخدم.";
+                    btn.disabled = false;
+                    btn.textContent = "دخول";
+                }
             }
         });
     }
