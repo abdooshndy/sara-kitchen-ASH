@@ -8,40 +8,41 @@
 
     // Initialize map when modal opens
     function initializeMap(containerId, initialLat = 30.0444, initialLng = 31.2357) {
-        if (!map) {
-            map = L.map(containerId).setView([initialLat, initialLng], 13);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
-                maxZoom: 19
-            }).addTo(map);
-
-            // Add draggable marker
-            marker = L.marker([initialLat, initialLng], {
-                draggable: true
-            }).addTo(map);
-
-            // Update location when marker is dragged
-            marker.on('dragend', function () {
-                const position = marker.getLatLng();
-                selectedLocation = {
-                    lat: position.lat,
-                    lng: position.lng
-                };
-            });
-        } else {
-            // Map already exists, just refresh and relocate
-            map.setView([initialLat, initialLng], 13);
-            if (marker) {
-                marker.setLatLng([initialLat, initialLng]);
-            }
+        // If map already exists, remove it to start fresh
+        // This fixes the blank map issue by forcing a full re-render
+        if (map) {
+            map.remove();
+            map = null;
         }
 
-        // Force map resize calculation multiple times to ensure visibility
-        // This handles different CSS transition speeds
-        setTimeout(() => map.invalidateSize(), 100);
-        setTimeout(() => map.invalidateSize(), 300);
-        setTimeout(() => map.invalidateSize(), 500);
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        map = L.map(containerId).setView([initialLat, initialLng], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Add draggable marker
+        marker = L.marker([initialLat, initialLng], {
+            draggable: true
+        }).addTo(map);
+
+        // Update location when marker is dragged
+        marker.on('dragend', function () {
+            const position = marker.getLatLng();
+            selectedLocation = {
+                lat: position.lat,
+                lng: position.lng
+            };
+        });
+
+        // Force resize after a short delay to ensure container is visible
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 200);
 
         // Set initial selected location
         selectedLocation = { lat: initialLat, lng: initialLng };
@@ -186,6 +187,13 @@
     window.MapHelper = {
         setupMapModal,
         getSelectedLocation: () => selectedLocation,
-        resetLocation: () => selectedLocation = null
+        resetLocation: () => selectedLocation = null,
+        refreshMap: (containerId) => {
+            if (map) {
+                map.invalidateSize();
+            } else {
+                initializeMap(containerId);
+            }
+        }
     };
 })();

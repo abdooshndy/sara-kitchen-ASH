@@ -77,6 +77,13 @@
             <div id="reg-map-container" style="height: 400px; width: 100%; border-radius: 8px; margin-bottom: 1rem;">
             </div>
 
+            <div style="text-align: center; margin-bottom: 10px;">
+                <button type="button" class="btn btn-sm btn-outline"
+                    onclick="if(window.MapHelper) window.MapHelper.refreshMap('reg-map-container')">
+                    🔄 تحديث الخريطة (لو مش ظاهرة)
+                </button>
+            </div>
+
             <button id="reg-confirm-location-btn" class="btn btn-primary" style="width: 100%;">
                 ✅ تأكيد الموقع
             </button>
